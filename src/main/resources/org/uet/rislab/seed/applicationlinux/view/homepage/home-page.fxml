@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane prefHeight="600.0" prefWidth="781.0" stylesheets="@../../style/style.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.uet.rislab.seed.applicationlinux.controller.HomePageController">
+   <children>
+      <ImageView fitHeight="600.0" fitWidth="527.0" layoutX="254.0" pickOnBounds="true" style="-fx-opacity: 0.6;">
+         <image>
+            <Image url="@../../media/wall1.png" />
+         </image>
+      </ImageView>
+      <Label layoutX="14.0" layoutY="14.0" styleClass="title-label" text="Phần mềm phân tích hạt tự động" />
+      <Label layoutX="14.0" layoutY="49.0" prefHeight="111.0" prefWidth="219.0" styleClass="subtitle-label" text="Sản phẩm do nhóm nghiên cứu khoa Công nghệ Nông nghiệp - Trường Đại học Công nghệ - Đại học Quốc gia Hà Nội xây dựng, phát triển" textAlignment="JUSTIFY" wrapText="true" />
+   </children>
+</AnchorPane>
