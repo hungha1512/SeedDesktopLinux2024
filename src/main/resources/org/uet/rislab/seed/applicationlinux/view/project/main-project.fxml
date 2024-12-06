@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+
+
+<AnchorPane prefHeight="600.0" prefWidth="781.0" styleClass="root" stylesheets="@../../style/style.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.uet.rislab.seed.applicationlinux.controller.MainProjectController">
+   <children>
+      <Label layoutX="38.0" layoutY="36.0" prefHeight="18.0" prefWidth="314.0" styleClass="title-label" text="Khởi tạo hoặc mở một dự án đã có sẵn" />
+      <Button fx:id="btn_create" layoutX="508.0" layoutY="28.0" mnemonicParsing="false" text="Tạo dự án" />
+      <Button fx:id="btn_open" layoutX="631.0" layoutY="28.0" mnemonicParsing="false" styleClass="button-cancel" text="Mở dự án" />
+   </children>
+</AnchorPane>
