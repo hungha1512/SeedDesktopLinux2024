@@ -5,9 +5,9 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane prefHeight="600.0" prefWidth="781.0" stylesheets="@../../style/style.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.uet.rislab.seed.applicationlinux.controller.HomePageController">
+<AnchorPane prefHeight="600.0" prefWidth="781.0" stylesheets="@../../style/style.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.uet.rislab.seed.applicationlinux.controller.homepage.HomePageController">
    <children>
-      <ImageView fitHeight="600.0" fitWidth="527.0" layoutX="254.0" pickOnBounds="true" style="-fx-opacity: 0.6;">
+      <ImageView fitHeight="600.0" fitWidth="503.0" layoutX="278.0" pickOnBounds="true" style="-fx-opacity: 0.6;">
          <image>
             <Image url="@../../media/wall1.png" />
          </image>

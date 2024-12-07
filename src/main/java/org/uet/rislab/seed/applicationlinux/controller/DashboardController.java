@@ -8,6 +8,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.layout.StackPane;
+import org.uet.rislab.seed.applicationlinux.controller.camera.MainCameraController;
 
 import java.io.IOException;
 import java.net.URL;
@@ -28,6 +29,8 @@ public class DashboardController implements Initializable {
     @FXML
     public StackPane main_screen;
 
+    private MainCameraController mainCameraController;
+
     public void setContent(Parent newContentPane) {
         main_screen.getChildren().clear();
         main_screen.getChildren().add(newContentPane);
@@ -37,6 +40,12 @@ public class DashboardController implements Initializable {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fileFXML));
             Parent newContentPane = loader.load();
+
+            // If it's the camera view, get the controller reference
+            if (fileFXML.equals("/org/uet/rislab/seed/applicationlinux/view/camera/main-camera.fxml")) {
+                mainCameraController = loader.getController(); // Store the controller reference
+            }
+
             setContent(newContentPane);
         } catch (IOException e) {
             e.printStackTrace();
@@ -47,6 +56,8 @@ public class DashboardController implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
         getContentPane("/org/uet/rislab/seed/applicationlinux/view/homepage/home-page.fxml");
+
+
 
         btn_project.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -65,7 +76,15 @@ public class DashboardController implements Initializable {
         btn_camera.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
+                if (mainCameraController != null) {
+                    mainCameraController.onTabDeactivated(); // Stop camera in the current tab
+                }
+
                 getContentPane("/org/uet/rislab/seed/applicationlinux/view/camera/main-camera.fxml");
+
+                if (mainCameraController != null) {
+                    mainCameraController.onTabActivated(); // Restart camera in the new tab
+                }
             }
         });
 

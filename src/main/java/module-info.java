@@ -11,4 +11,9 @@ module org.uet.rislab.seed.applicationlinux {
 
     opens org.uet.rislab.seed.applicationlinux.controller to javafx.fxml;
     exports org.uet.rislab.seed.applicationlinux;
+    opens org.uet.rislab.seed.applicationlinux.controller.homepage to javafx.fxml;
+    opens org.uet.rislab.seed.applicationlinux.controller.analyze to javafx.fxml;
+    opens org.uet.rislab.seed.applicationlinux.controller.camera to javafx.fxml;
+    opens org.uet.rislab.seed.applicationlinux.controller.project to javafx.fxml;
+    opens org.uet.rislab.seed.applicationlinux.controller.result to javafx.fxml;
 }

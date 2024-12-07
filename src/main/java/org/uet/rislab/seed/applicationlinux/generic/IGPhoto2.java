@@ -6,11 +6,13 @@ import com.sun.jna.Pointer;
 import com.sun.jna.ptr.NativeLongByReference;
 import com.sun.jna.ptr.PointerByReference;
 
-public interface IGPhoto2Lib extends Library {
-    IGPhoto2Lib INSTANCE = Native.load("gphoto2", IGPhoto2Lib.class);
+public interface IGPhoto2 extends Library {
+    IGPhoto2 INSTANCE = Native.load("gphoto2", IGPhoto2.class);
 
     //Init context
     Pointer gp_context_new();
+
+    void gp_context_unref(Pointer context);
 
     //Create camera
     int gp_camera_new(PointerByReference camera);
