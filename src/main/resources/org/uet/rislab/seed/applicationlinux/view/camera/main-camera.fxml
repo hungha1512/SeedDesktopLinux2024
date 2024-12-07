@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="org.uet.rislab.seed.applicationlinux.controller.MainCameraController"
-            prefHeight="400.0" prefWidth="600.0">
-
+<AnchorPane prefHeight="600.0" prefWidth="781.0" stylesheets="@../../style/style.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.uet.rislab.seed.applicationlinux.controller.camera.MainCameraController">
+   <children>
+      <ImageView fx:id="iv_camera" fitHeight="438.0" fitWidth="657.0" layoutX="62.0" layoutY="26.0" pickOnBounds="true" preserveRatio="true" />
+      <Button fx:id="btn_capture" layoutX="654.0" layoutY="487.0" mnemonicParsing="false" text="Chụp ảnh" />
+      <Button fx:id="btn_next_capture" layoutX="654.0" layoutY="487.0" mnemonicParsing="false" text="Tiếp tục" visible="false" />
+      <Button fx:id="btn_recapture" layoutX="654.0" layoutY="533.0" mnemonicParsing="false" prefHeight="34.0" prefWidth="100.0" styleClass="button-cancel" text="Chụp lại" visible="false" />
+   </children>
 </AnchorPane>
