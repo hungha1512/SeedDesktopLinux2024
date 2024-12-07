@@ -1,4 +1,4 @@
-package org.uet.rislab.seed.applicationlinux.controller;
+package org.uet.rislab.seed.applicationlinux.controller.homepage;
 
 import javafx.fxml.Initializable;
 
