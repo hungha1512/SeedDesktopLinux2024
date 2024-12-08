@@ -9,6 +9,10 @@ public enum EAwns {
         this.awns = awns;
     }
 
+    public String getAwns() {
+        return awns;
+    }
+
     /**
      * Converts a string value to the corresponding EAwns enum constant.
      *

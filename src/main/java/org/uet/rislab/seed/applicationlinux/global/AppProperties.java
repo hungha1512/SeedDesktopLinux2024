@@ -3,15 +3,18 @@ package org.uet.rislab.seed.applicationlinux.global;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.Properties;
 
 public class AppProperties {
     private static final Properties PROPERTIES = new Properties();
-    private static final String PROPERTIES_PATH_FILE = System.getProperty("user.dir") + "/src/main/resources/application.properties";
+    private static String propertiesFilePath;
 
-    static {
+    public static void setPropertiesFilePath(String path) {
+        propertiesFilePath = path;
         try {
-            InputStream inputStream = AppProperties.class.getClassLoader().getResourceAsStream(PROPERTIES_PATH_FILE);
+            InputStream inputStream = AppProperties.class.getClassLoader().getResourceAsStream(propertiesFilePath);
             if (inputStream != null) {
                 PROPERTIES.load(inputStream);
             }
@@ -26,9 +29,9 @@ public class AppProperties {
 
     public static void setProperty(String key, String value) {
         PROPERTIES.setProperty(key, value);
-        try {
-            FileOutputStream fos = new FileOutputStream(PROPERTIES_PATH_FILE);
-            PROPERTIES.store(fos, null);
+        try (OutputStreamWriter writer = new OutputStreamWriter(
+                new FileOutputStream(propertiesFilePath), StandardCharsets.UTF_8)) {
+            PROPERTIES.store(writer, null);
         } catch (IOException e) {
             e.printStackTrace();
         }

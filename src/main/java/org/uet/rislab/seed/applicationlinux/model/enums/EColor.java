@@ -9,6 +9,10 @@ public enum EColor {
         this.color = color;
     }
 
+    public String getColor() {
+        return color;
+    }
+
     /**
      * Converts a string value to the corresponding EColor enum constant.
      *
