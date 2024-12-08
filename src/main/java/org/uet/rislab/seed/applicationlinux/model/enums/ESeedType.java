@@ -3,10 +3,14 @@ package org.uet.rislab.seed.applicationlinux.model.enums;
 public enum ESeedType {
     LONG("Hạt dài"), SHORT("Hạt thường"), ROUND("Hạt tròn");
 
-    private String type;
+    private final String type;
 
     ESeedType(String type) {
         this.type = type;
+    }
+
+    public String getType() {
+        return type;
     }
 
     /**
@@ -23,4 +27,5 @@ public enum ESeedType {
         }
         return null;
     }
+
 }
