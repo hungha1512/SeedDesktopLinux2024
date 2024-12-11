@@ -6,11 +6,14 @@ import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
+import org.uet.rislab.seed.applicationlinux.controller.DashboardController;
 import org.uet.rislab.seed.applicationlinux.global.AppProperties;
 import org.uet.rislab.seed.applicationlinux.model.enums.EAwns;
 import org.uet.rislab.seed.applicationlinux.model.enums.EColor;
 import org.uet.rislab.seed.applicationlinux.model.enums.ESeedType;
+import org.uet.rislab.seed.applicationlinux.service.AlertService;
 
 import java.io.File;
 import java.io.IOException;
@@ -38,6 +41,10 @@ public class CreateProjectController implements Initializable {
     public Button btn_cancel;
     @FXML
     public Label lbl_parent_path;
+
+    private final AlertService alertService = new AlertService();
+
+    private DashboardController dashboardController;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -95,9 +102,9 @@ public class CreateProjectController implements Initializable {
     }
 
     public void handleParentPath() {
-        javafx.stage.DirectoryChooser directoryChooser = new javafx.stage.DirectoryChooser();
+        DirectoryChooser directoryChooser = new javafx.stage.DirectoryChooser();
         directoryChooser.setTitle("Chọn Thư Mục Dự Án");
-        java.io.File selectedDirectory = directoryChooser.showDialog(btn_parent_path.getScene().getWindow());
+        File selectedDirectory = directoryChooser.showDialog(btn_parent_path.getScene().getWindow());
 
         if (selectedDirectory != null) {
             lbl_parent_path.setText(selectedDirectory.getAbsolutePath());
@@ -114,7 +121,7 @@ public class CreateProjectController implements Initializable {
         String projectName = txt_project_name.getText();
         String projectDescription = txt_project_description.getText();
         if (!isInputValid(projectName, projectDescription)) {
-            showAlert(Alert.AlertType.WARNING, "Thiếu thông tin", "Tên dự án và mô tả không được để trống");
+            alertService.showAlert(Alert.AlertType.WARNING, "Thiếu thông tin", "Tên dự án và mô tả không được để trống");
             return;
         }
 
@@ -122,8 +129,8 @@ public class CreateProjectController implements Initializable {
 
         saveProjectProperties(projectFolder, projectName, projectDescription, eSeedType, eAwns, eColor);
 
-        showAlert(Alert.AlertType.INFORMATION, "Tạo Dự Án Thành Công", "Dự án đã được tạo thành công");
-//        navigateToProjectPage(lbl_parent_path.getText());
+        alertService.showAlert(Alert.AlertType.INFORMATION, "Tạo Dự Án Thành Công", "Dự án đã được tạo thành công");
+        navigateToProjectPage();
     }
 
     public void handleCancel() {
@@ -140,14 +147,6 @@ public class CreateProjectController implements Initializable {
     private boolean isInputValid(String projectName, String projectDescription) {
         return !(projectName == null || projectName.trim().isEmpty() ||
                 projectDescription == null || projectDescription.trim().isEmpty());
-    }
-
-    private void showAlert(Alert.AlertType type, String title, String content) {
-        Alert alert = new Alert(type);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(content);
-        alert.showAndWait();
     }
 
     private File createProjectFolders(String parentPath, String projectName) throws IOException {
@@ -184,21 +183,41 @@ public class CreateProjectController implements Initializable {
         AppProperties.setProperty("eColor", eColor);
         AppProperties.setProperty("creationDate", new java.util.Date().toString());
         AppProperties.setProperty("updateDate", new java.util.Date().toString());
+        AppProperties.setProperty("parentPath", projectFolder.getAbsolutePath());
     }
 
-//    private void navigateToProjectPage(String parentPath) {
-//        System.out.println("Navigating to project page for project in folder: " + parentPath);
-//        FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/uet/rislab/seed/applicationlinux/view/project/projectPage.fxml"));
-//        Parent root;
-//        try {
-//            root = loader.load();
-//            ProjectPageController controller = loader.getController();
-//            controller.setParentPath(parentPath);
-//            Stage stage = (Stage) btn_create.getScene().getWindow();
-//            stage.setScene(new Scene(root));
-//            stage.show();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//    }
+    private void navigateToProjectPage() {
+        try {
+            // Cập nhật global properties
+            String globalPropertiesPath = "src/main/resources/application.properties";
+            AppProperties.setPropertiesFilePath(globalPropertiesPath);
+            AppProperties.setProperty("isProjectOpened", "true");
+            AppProperties.setProperty("parentPath", lbl_parent_path.getText() + "/" + txt_project_name.getText());
+            AppProperties.setProperty("projectName", txt_project_name.getText());
+            AppProperties.setProperty("description", txt_project_description.getText());
+            AppProperties.setProperty("eSeedType", getComboBoxValue(cb_seed_type));
+            AppProperties.setProperty("eAwns", getComboBoxValue(cb_awns));
+            AppProperties.setProperty("eColor", getComboBoxValue(cb_color));
+            AppProperties.setProperty("updateDate", new java.util.Date().toString());
+
+            System.out.println("Global application.properties updated successfully.");
+
+            // Gọi DashboardController để load lại main-project.fxml
+            if (dashboardController != null) {
+                dashboardController.getContentPane("/org/uet/rislab/seed/applicationlinux/view/project/main-project.fxml");
+            }
+
+            // Đóng cửa sổ tạo dự án
+            Stage currentStage = (Stage) btn_create.getScene().getWindow();
+            currentStage.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            alertService.showAlert(Alert.AlertType.ERROR, "Lỗi Điều Hướng", "Không thể tải lại trang chính của dự án.");
+        }
+    }
+
+    public void setDashboardController(DashboardController dashboardController) {
+        this.dashboardController = dashboardController;
+    }
 }

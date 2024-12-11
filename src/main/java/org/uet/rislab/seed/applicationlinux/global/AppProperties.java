@@ -1,24 +1,21 @@
 package org.uet.rislab.seed.applicationlinux.global;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStreamWriter;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Properties;
 
 public class AppProperties {
-    private static final Properties PROPERTIES = new Properties();
+    private static Properties PROPERTIES = new Properties();
     private static String propertiesFilePath;
 
     public static void setPropertiesFilePath(String path) {
         propertiesFilePath = path;
-        try {
-            InputStream inputStream = AppProperties.class.getClassLoader().getResourceAsStream(propertiesFilePath);
-            if (inputStream != null) {
-                PROPERTIES.load(inputStream);
-            }
+        try (InputStreamReader reader = new InputStreamReader(
+                new FileInputStream(propertiesFilePath), StandardCharsets.UTF_8)) {
+            PROPERTIES.clear(); // Clear any existing properties
+            PROPERTIES.load(reader);
         } catch (IOException e) {
+            System.err.println("Error loading properties file: " + propertiesFilePath);
             e.printStackTrace();
         }
     }

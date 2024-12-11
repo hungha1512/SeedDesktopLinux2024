@@ -17,8 +17,9 @@
 
         private Task<Void> liveViewTask;
 
+        private volatile boolean liveViewRunning;
+
         public void initCamera() {
-            releaseCamera();
             // Create context
             context = IGPhoto2.INSTANCE.gp_context_new();
 
@@ -43,44 +44,25 @@
             ret = IGPhoto2.INSTANCE.gp_camera_init(camera, context);
             if (ret != 0) {
                 System.err.println("Không thể kết nối với camera: " + ret);
-                IGPhoto2.INSTANCE.gp_camera_free(camera);
+                cleanupCamera();
                 return;
             }
             System.out.println("Kết nối thành công với máy ảnh!");
         }
 
-        public void releaseCamera() {
-            if (camera != null) {
-                if (context != null) {
-                    int ret = IGPhoto2.INSTANCE.gp_camera_exit(camera, context);
-                    if (ret != 0) {
-                        System.err.println("Error exiting camera: " + ret);
-                    }
-                }
-                IGPhoto2.INSTANCE.gp_camera_free(camera);
-                camera = null;
-            }
-            if (context != null) {
-                IGPhoto2.INSTANCE.gp_context_unref(context);
-                context = null;
-            }
-            System.gc();
-        }
-
-        public void reinitCameraIfNeeded() {
-            if (camera == null || context == null) {
-                releaseCamera();
-                initCamera();
-            }
-        }
-
         public void startLiveView(ImageView imageView) {
-            stopLiveView();
+            if (liveViewRunning) {
+                System.out.println("Live view is already running.");
+                return; // Avoid starting another live view thread
+            }
 
-            Task<Void> task = new Task<Void>() {
+            stopLiveView();
+            liveViewRunning = true;
+
+            liveViewTask = new Task<Void>() {
                 @Override
                 protected Void call() throws Exception {
-                    while (!isCancelled()) {
+                    while (liveViewRunning && !isCancelled()) {
                         // Tạo đối tượng tệp để lưu dữ liệu ảnh
                         PointerByReference fileRef = new PointerByReference();
                         int ret = IGPhoto2.INSTANCE.gp_file_new(fileRef);
@@ -132,15 +114,29 @@
                 }
             };
 
-            Thread thread = new Thread(task);
+            Thread thread = new Thread(liveViewTask);
             thread.setDaemon(true);
             thread.start();
         }
 
         public void stopLiveView() {
+            liveViewRunning = false;
             if (liveViewTask != null && !liveViewTask.isCancelled()) {
                 liveViewTask.cancel();
                 liveViewTask = null;
+            }
+        }
+
+        public void cleanupCamera() {
+            stopLiveView();
+            if (camera != null) {
+                IGPhoto2.INSTANCE.gp_camera_exit(camera, context);
+                IGPhoto2.INSTANCE.gp_camera_free(camera);
+                camera = null;
+            }
+            if (context != null) {
+                IGPhoto2.INSTANCE.gp_context_unref(context);
+                context = null;
             }
         }
     }

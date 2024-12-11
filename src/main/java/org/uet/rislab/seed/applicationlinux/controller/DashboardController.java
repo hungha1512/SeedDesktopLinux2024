@@ -9,6 +9,7 @@ import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.layout.StackPane;
 import org.uet.rislab.seed.applicationlinux.controller.camera.MainCameraController;
+import org.uet.rislab.seed.applicationlinux.controller.project.MainProjectController;
 
 import java.io.IOException;
 import java.net.URL;
@@ -29,7 +30,7 @@ public class DashboardController implements Initializable {
     @FXML
     public StackPane main_screen;
 
-    private MainCameraController mainCameraController;
+    private Object currentPageController;
 
     public void setContent(Parent newContentPane) {
         main_screen.getChildren().clear();
@@ -41,10 +42,18 @@ public class DashboardController implements Initializable {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fileFXML));
             Parent newContentPane = loader.load();
 
-            // If it's the camera view, get the controller reference
-            if (fileFXML.equals("/org/uet/rislab/seed/applicationlinux/view/camera/main-camera.fxml")) {
-                mainCameraController = loader.getController(); // Store the controller reference
+            if (fileFXML.contains("main-project.fxml")) {
+                MainProjectController mainProjectController = loader.getController();
+                mainProjectController.setDashboardController(this);
             }
+
+            // Clean up resources for the current controller before switching
+            if (currentPageController instanceof MainCameraController) {
+                ((MainCameraController) currentPageController).onPageExit();
+            }
+
+            // Update current controller
+            currentPageController = loader.getController();
 
             setContent(newContentPane);
         } catch (IOException e) {
@@ -57,12 +66,11 @@ public class DashboardController implements Initializable {
 
         getContentPane("/org/uet/rislab/seed/applicationlinux/view/homepage/home-page.fxml");
 
-
-
         btn_project.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
                 getContentPane("/org/uet/rislab/seed/applicationlinux/view/project/main-project.fxml");
+
             }
         });
 
@@ -76,15 +84,7 @@ public class DashboardController implements Initializable {
         btn_camera.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
-                if (mainCameraController != null) {
-                    mainCameraController.onTabDeactivated(); // Stop camera in the current tab
-                }
-
                 getContentPane("/org/uet/rislab/seed/applicationlinux/view/camera/main-camera.fxml");
-
-                if (mainCameraController != null) {
-                    mainCameraController.onTabActivated(); // Restart camera in the new tab
-                }
             }
         });
 
