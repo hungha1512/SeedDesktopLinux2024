@@ -20,19 +20,15 @@ public class MainCameraController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        connectCameraService.cleanupCamera();
         connectCameraService.initCamera();
         connectCameraService.startLiveView(iv_camera);
+
+
     }
 
-    // This method is called when switching back to the camera tab
-    public void onTabActivated() {
-        connectCameraService.reinitCameraIfNeeded();  // Reinitialize the camera if needed
-        connectCameraService.startLiveView(iv_camera);  // Restart live view
-    }
-
-    // Optional: Clean up when tab is deactivated (e.g., when switching away from the camera tab)
-    public void onTabDeactivated() {
-        connectCameraService.stopLiveView();
-        connectCameraService.releaseCamera();  // Release resources
+    @FXML
+    public void onPageExit() {
+        connectCameraService.cleanupCamera();
     }
 }
