@@ -155,9 +155,9 @@ public class CreateProjectController implements Initializable {
             projectFolder.mkdirs();
         }
 
-        createFolderIfNotExists(new File(projectFolder, "Ảnh chụp"));
-        createFolderIfNotExists(new File(projectFolder, "Kết quả"));
-        createFolderIfNotExists(new File(projectFolder, "Phân tích"));
+        createFolderIfNotExists(new File(projectFolder, "Image"));
+        createFolderIfNotExists(new File(projectFolder, "Result"));
+        createFolderIfNotExists(new File(projectFolder, "Image_analysis"));
         return projectFolder;
     }
 
