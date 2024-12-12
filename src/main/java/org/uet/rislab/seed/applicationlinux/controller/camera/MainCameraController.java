@@ -4,8 +4,11 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.image.ImageView;
+import org.uet.rislab.seed.applicationlinux.global.AppProperties;
+import org.uet.rislab.seed.applicationlinux.service.CaptureCameraService;
 import org.uet.rislab.seed.applicationlinux.service.ConnectCameraService;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -17,6 +20,7 @@ public class MainCameraController implements Initializable {
     public Button btn_recapture;
 
     private ConnectCameraService connectCameraService = new ConnectCameraService();
+    private CaptureCameraService captureCameraService;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -24,7 +28,27 @@ public class MainCameraController implements Initializable {
         connectCameraService.initCamera();
         connectCameraService.startLiveView(iv_camera);
 
+        captureCameraService = new CaptureCameraService(
+                connectCameraService.getCamera(),
+                connectCameraService.getContext());
 
+        captureCameraService.setConnectCameraService(connectCameraService);
+
+        btn_capture.setOnAction(event -> {
+            try {
+                String outputPath = AppProperties.getProperty("parentPath") + "/Image";
+
+                // Use the already initialized captureCameraService
+                captureCameraService.captureImage(outputPath);
+                connectCameraService.startLiveView(iv_camera);
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.err.println("Error capturing image.");
+            }
+            btn_capture.setVisible(false);
+            btn_next_capture.setVisible(true);
+            btn_recapture.setVisible(true);
+        });
     }
 
     @FXML
