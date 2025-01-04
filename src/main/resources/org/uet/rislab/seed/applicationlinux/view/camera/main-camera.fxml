@@ -8,21 +8,21 @@
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.shape.Line?>
 
 <AnchorPane prefHeight="600.0" prefWidth="781.0" stylesheets="@../../style/style.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.uet.rislab.seed.applicationlinux.controller.camera.MainCameraController">
    <children>
-      <ImageView fx:id="iv_camera" fitHeight="438.0" fitWidth="657.0" layoutX="62.0" layoutY="8.0" pickOnBounds="true" preserveRatio="true" />
+      <ImageView fx:id="iv_camera" fitHeight="438.0" fitWidth="658.0" layoutX="62.0" layoutY="8.0" pickOnBounds="true" preserveRatio="true" />
       <Button fx:id="btn_capture" layoutX="654.0" layoutY="487.0" mnemonicParsing="false" text="Chụp ảnh" />
       <Button fx:id="btn_next_capture" layoutX="654.0" layoutY="487.0" mnemonicParsing="false" prefHeight="34.0" prefWidth="99.0" text="Tiếp tục" visible="false" />
       <Button fx:id="btn_recapture" layoutX="654.0" layoutY="533.0" mnemonicParsing="false" prefHeight="34.0" prefWidth="100.0" styleClass="button-cancel" text="Chụp lại" visible="false" />
       <ScrollPane layoutY="467.0" prefHeight="132.0" prefWidth="603.0">
          <content>
-            <GridPane prefHeight="115.0" prefWidth="603.0">
+            <GridPane fx:id="gp_image_view" prefHeight="115.0" prefWidth="603.0">
               <columnConstraints>
                 <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
                   <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
                   <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
               </columnConstraints>
               <rowConstraints>
                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
@@ -31,5 +31,7 @@
          </content>
       </ScrollPane>
       <Label layoutX="14.0" layoutY="446.0" styleClass="title-label" text="Lịch sử chụp" />
+      <Line endX="500.0" fill="RED" layoutX="-329.0" layoutY="8.0" startX="500.0" startY="438.0" stroke="RED" strokeLineCap="ROUND" strokeLineJoin="ROUND" />
+      <Line endX="500.0" layoutX="109.0" layoutY="8.0" startX="500.0" startY="438.0" stroke="RED" strokeLineCap="ROUND" strokeLineJoin="ROUND" />
    </children>
 </AnchorPane>
