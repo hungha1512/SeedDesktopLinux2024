@@ -16,6 +16,7 @@ public class Project {
     private String imageFolderPath;
     private String analysisDataPath;
     private String resultCsvPath;
+    private double weight;
     private List<Seed> seeds;
 
     private ESeedType eSeedType;
@@ -27,7 +28,7 @@ public class Project {
     }
 
     public Project(String projectId, String name, Date creationDate, String description, String imageFolderPath,
-                   String analysisDataPath, String resultCsvPath, List<Seed> seeds) {
+                   String analysisDataPath, String resultCsvPath, double weight, List<Seed> seeds) {
         this.projectId = projectId;
         this.name = name;
         this.creationDate = creationDate;
@@ -39,6 +40,7 @@ public class Project {
         this.eAwns = EAwns.PRESENT;
         this.eColor = EColor.YELLOW;
         this.eSeedType = ESeedType.LONG;
+        this.weight = weight;
     }
 
     public Project(String projectId, String name, Date creationDate, String description, String imageFolderPath,
@@ -55,6 +57,7 @@ public class Project {
         this.eSeedType = eSeedType;
         this.eAwns = eAwns;
         this.eColor = eColor;
+        this.weight = weight;
     }
 
     public String getProjectId() {

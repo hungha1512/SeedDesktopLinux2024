@@ -10,6 +10,7 @@ import javafx.scene.control.Button;
 import javafx.scene.layout.StackPane;
 import org.uet.rislab.seed.applicationlinux.controller.camera.MainCameraController;
 import org.uet.rislab.seed.applicationlinux.controller.project.MainProjectController;
+import org.uet.rislab.seed.applicationlinux.global.AppProperties;
 
 import java.io.IOException;
 import java.net.URL;
@@ -63,7 +64,7 @@ public class DashboardController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-
+        AppProperties.setPropertiesFilePath("src/main/resources/application.properties");
         getContentPane("/org/uet/rislab/seed/applicationlinux/view/homepage/home-page.fxml");
 
         btn_project.setOnAction(new EventHandler<ActionEvent>() {
