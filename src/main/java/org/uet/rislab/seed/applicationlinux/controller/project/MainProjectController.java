@@ -33,6 +33,8 @@ public class MainProjectController implements Initializable {
     @FXML
     public TextField txt_project_description;
     @FXML
+    public TextField txt_weight;
+    @FXML
     public ComboBox cb_seed_type;
     @FXML
     public ComboBox cb_awns;
@@ -71,6 +73,13 @@ public class MainProjectController implements Initializable {
             throw new RuntimeException(e);
         }
         txt_project_description.setEditable(false);
+
+        try {
+            txt_weight.setText(new String(AppProperties.getProperty("weight").getBytes(), "UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
+        txt_weight.setEditable(false);
 
         // Input data to seed type combo box
         try {
@@ -136,6 +145,7 @@ public class MainProjectController implements Initializable {
                 // Update UI fields with loaded properties
                 txt_project_name.setText(properties.getProperty("projectName", ""));
                 txt_project_description.setText(properties.getProperty("description", ""));
+                txt_weight.setText(properties.getProperty("weight", ""));
                 cb_seed_type.setValue(properties.getProperty("eSeedType", ""));
                 cb_awns.setValue(properties.getProperty("eAwns", ""));
                 cb_color.setValue(properties.getProperty("eColor", ""));
@@ -144,6 +154,7 @@ public class MainProjectController implements Initializable {
                 // Update global properties
                 AppProperties.setProperty("projectName", properties.getProperty("projectName", ""));
                 AppProperties.setProperty("description", properties.getProperty("description", ""));
+                AppProperties.setProperty("weight", properties.getProperty("weight", ""));
                 AppProperties.setProperty("eSeedType", properties.getProperty("eSeedType", ""));
                 AppProperties.setProperty("eAwns", properties.getProperty("eAwns", ""));
                 AppProperties.setProperty("eColor", properties.getProperty("eColor", ""));
@@ -163,6 +174,7 @@ public class MainProjectController implements Initializable {
 
     public void handleEditProject() {
         txt_project_name.setEditable(true);
+        txt_weight.setEditable(true);
         txt_project_description.setEditable(true);
         cb_seed_type.setDisable(false);
         cb_awns.setDisable(false);
@@ -202,11 +214,22 @@ public class MainProjectController implements Initializable {
             try {
                 String newProjectName = txt_project_name.getText().trim();
                 String projectDescription = txt_project_description.getText().trim();
+                String weightInput = txt_weight.getText().trim();
                 String seedType = cb_seed_type.getValue().toString();
                 String awns = cb_awns.getValue().toString();
                 String color = cb_color.getValue().toString();
                 String oldParentPath = AppProperties.getProperty("parentPath");
                 String newParentPath = lbl_parent_path.getText();
+
+                weightInput = weightInput.replace(",", ".");
+                double weight;
+
+                try {
+                    weight = Double.parseDouble(weightInput);
+                } catch (NumberFormatException e) {
+                    alertService.showAlert(Alert.AlertType.ERROR, "Lỗi", "Trọng lượng không hợp lệ! Vui lòng nhập số hợp lệ.");
+                    return;
+                }
 
                 if (newProjectName.isEmpty() || projectDescription.isEmpty() || newParentPath.isEmpty()) {
                     alertService.showAlert(Alert.AlertType.ERROR, "Lỗi", "Các trường không được để trống!");
@@ -215,7 +238,7 @@ public class MainProjectController implements Initializable {
 
                 File oldProjectFolder = new File(oldParentPath);
 
-                // Trường hợp 1: Chỉ thay đổi tên thư mục
+                // Case 1: Change project name only
                 if (!AppProperties.getProperty("projectName").equals(newProjectName) && oldParentPath.equals(newParentPath)) {
                     File parentDirectory = oldProjectFolder.getParentFile();
                     File newProjectFolder = new File(parentDirectory, newProjectName);
@@ -227,7 +250,7 @@ public class MainProjectController implements Initializable {
 
                     updateProjectFolder(oldProjectFolder, newProjectFolder);
                 }
-                // Trường hợp 2: Thay đổi cả đường dẫn cha
+                // Case 2: Change parent path only
                 else if (!oldParentPath.equals(newParentPath)) {
                     File newProjectFolder = new File(newParentPath, newProjectName);
 
@@ -238,14 +261,15 @@ public class MainProjectController implements Initializable {
 
                     updateProjectFolder(oldProjectFolder, newProjectFolder);
                 }
-                // Trường hợp 3: Không có thay đổi
+                // Case 3: Nothing changes
                 else {
                     AppProperties.setPropertiesFilePath(newParentPath + "/application.properties");
                 }
 
-                // Cập nhật các thuộc tính
+                // Update properties
                 AppProperties.setProperty("projectName", newProjectName);
                 AppProperties.setProperty("description", projectDescription);
+                AppProperties.setProperty("weight", String.valueOf(weight));
                 AppProperties.setProperty("eSeedType", seedType);
                 AppProperties.setProperty("eAwns", awns);
                 AppProperties.setProperty("eColor", color);
@@ -276,6 +300,7 @@ public class MainProjectController implements Initializable {
     private void reloadProjectData() {
         txt_project_name.setText(AppProperties.getProperty("projectName"));
         txt_project_description.setText(AppProperties.getProperty("description"));
+        txt_weight.setText(AppProperties.getProperty("weight"));
         cb_seed_type.setValue(AppProperties.getProperty("eSeedType"));
         cb_awns.setValue(AppProperties.getProperty("eAwns"));
         cb_color.setValue(AppProperties.getProperty("eColor"));
@@ -286,6 +311,7 @@ public class MainProjectController implements Initializable {
     private void resetEditMode() {
         txt_project_name.setEditable(false);
         txt_project_description.setEditable(false);
+        txt_weight.setEditable(false);
         cb_seed_type.setDisable(true);
         cb_awns.setDisable(true);
         cb_color.setDisable(true);

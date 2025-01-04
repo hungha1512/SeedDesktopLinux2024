@@ -28,6 +28,8 @@ public class CreateProjectController implements Initializable {
     @FXML
     public TextField txt_project_description;
     @FXML
+    public TextField txt_weight;
+    @FXML
     public ComboBox cb_seed_type;
     @FXML
     public ComboBox cb_awns;
@@ -61,6 +63,16 @@ public class CreateProjectController implements Initializable {
 
         // Set the enter key for project description text field
         txt_project_description.addEventFilter(javafx.scene.input.KeyEvent.KEY_PRESSED, event -> {
+            if (event.getCode() == javafx.scene.input.KeyCode.ENTER) {
+                try {
+                    handleCreate();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+
+        txt_weight.addEventFilter(javafx.scene.input.KeyEvent.KEY_PRESSED, event -> {
             if (event.getCode() == javafx.scene.input.KeyCode.ENTER) {
                 try {
                     handleCreate();
@@ -118,16 +130,27 @@ public class CreateProjectController implements Initializable {
         String eAwns = getComboBoxValue(cb_awns);
         String eColor = getComboBoxValue(cb_color);
 
-        String projectName = txt_project_name.getText();
-        String projectDescription = txt_project_description.getText();
+        String projectName = txt_project_name.getText().trim();
+        String projectDescription = txt_project_description.getText().trim();
+        String weightInput = txt_weight.getText().trim();
         if (!isInputValid(projectName, projectDescription)) {
             alertService.showAlert(Alert.AlertType.WARNING, "Thiếu thông tin", "Tên dự án và mô tả không được để trống");
             return;
         }
 
+        weightInput = weightInput.replace(",", ".");
+        double weight;
+
+        try {
+            weight = Double.parseDouble(weightInput);
+        } catch (NumberFormatException e) {
+            alertService.showAlert(Alert.AlertType.ERROR, "Lỗi", "Trọng lượng không hợp lệ! Vui lòng nhập số hợp lệ.");
+            return;
+        }
+
         File projectFolder = createProjectFolders(lbl_parent_path.getText(), projectName);
 
-        saveProjectProperties(projectFolder, projectName, projectDescription, eSeedType, eAwns, eColor);
+        saveProjectProperties(projectFolder, projectName, projectDescription, eSeedType, eAwns, eColor, weight);
 
         alertService.showAlert(Alert.AlertType.INFORMATION, "Tạo Dự Án Thành Công", "Dự án đã được tạo thành công");
         navigateToProjectPage();
@@ -168,7 +191,7 @@ public class CreateProjectController implements Initializable {
     }
 
     private void saveProjectProperties(File projectFolder, String projectName, String description,
-                                       String eSeedType, String eAwns, String eColor) throws IOException {
+                                       String eSeedType, String eAwns, String eColor, double weight) throws IOException {
         File propertiesFile = new File(projectFolder, "application.properties");
         if (!propertiesFile.exists()) {
             propertiesFile.createNewFile();
@@ -178,6 +201,7 @@ public class CreateProjectController implements Initializable {
 
         AppProperties.setProperty("projectName", projectName);
         AppProperties.setProperty("description", description);
+        AppProperties.setProperty("weight", String.valueOf(weight));
         AppProperties.setProperty("eSeedType", eSeedType);
         AppProperties.setProperty("eAwns", eAwns);
         AppProperties.setProperty("eColor", eColor);
@@ -195,6 +219,7 @@ public class CreateProjectController implements Initializable {
             AppProperties.setProperty("parentPath", lbl_parent_path.getText() + "/" + txt_project_name.getText());
             AppProperties.setProperty("projectName", txt_project_name.getText());
             AppProperties.setProperty("description", txt_project_description.getText());
+            AppProperties.setProperty("weight", txt_weight.getText());
             AppProperties.setProperty("eSeedType", getComboBoxValue(cb_seed_type));
             AppProperties.setProperty("eAwns", getComboBoxValue(cb_awns));
             AppProperties.setProperty("eColor", getComboBoxValue(cb_color));
