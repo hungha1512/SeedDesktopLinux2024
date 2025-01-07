@@ -47,6 +47,5 @@
     </VBox>
     <Rectangle arcHeight="5.0" arcWidth="5.0" fill="DODGERBLUE" height="600.0" layoutX="218.0" stroke="BLACK"
                strokeType="INSIDE" width="1.0"/>
-    <VBox layoutY="400.0" prefHeight="200.0" prefWidth="100.0"/>
     <StackPane fx:id="main_screen" layoutX="219.0" prefHeight="600.0" prefWidth="781.0"/>
 </AnchorPane>

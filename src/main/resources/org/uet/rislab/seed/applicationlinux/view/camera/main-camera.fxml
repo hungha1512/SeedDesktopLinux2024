@@ -33,5 +33,6 @@
       <Label layoutX="14.0" layoutY="446.0" styleClass="title-label" text="Lịch sử chụp" />
       <Line endX="500.0" fill="RED" layoutX="-329.0" layoutY="8.0" startX="500.0" startY="438.0" stroke="RED" strokeLineCap="ROUND" strokeLineJoin="ROUND" />
       <Line endX="500.0" layoutX="109.0" layoutY="8.0" startX="500.0" startY="438.0" stroke="RED" strokeLineCap="ROUND" strokeLineJoin="ROUND" />
+      <Label layoutY="140.0" prefHeight="175.0" prefWidth="64.0" styleClass="title-label" text="ĐƯA HẠT VÀ ĐỐI CHỨNG VÀO GIỮA HAI ĐƯỜNG KẺ ĐỎ" wrapText="true" />
    </children>
 </AnchorPane>
