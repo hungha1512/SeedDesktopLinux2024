@@ -8,21 +8,21 @@
 <?import javafx.scene.layout.AnchorPane?>
 
 <AnchorPane prefHeight="534.0" prefWidth="781.0" stylesheets="@../../style/style.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.uet.rislab.seed.applicationlinux.controller.project.CreateProjectController">
-    <Label layoutX="14.0" layoutY="14.0" styleClass="title-label" text="Tạo Dự Án" />
+    <Label layoutX="14.0" layoutY="14.0" styleClass="title-label" text="Tạo dự án" />
     <Separator layoutX="14.0" layoutY="40.0" prefHeight="3.0" prefWidth="754.0" />
-    <Label layoutX="14.0" layoutY="60.0" styleClass="subtitle-label" text="Tên Dự Án" />
+    <Label layoutX="14.0" layoutY="60.0" styleClass="subtitle-label" text="Tên dự án" />
     <TextField fx:id="txt_project_name" layoutX="14.0" layoutY="80.0" prefHeight="34.0" prefWidth="754.0" />
-    <Label layoutX="14.0" layoutY="120.0" styleClass="subtitle-label" text="Mô Tả Dự Án" />
+    <Label layoutX="14.0" layoutY="120.0" styleClass="subtitle-label" text="Mô tả dự án" />
     <TextField fx:id="txt_project_description" layoutX="14.0" layoutY="140.0" prefHeight="34.0" prefWidth="754.0" />
-    <Label layoutX="14.0" layoutY="180.0" styleClass="subtitle-label" text="Loại Hạt" />
+    <Label layoutX="14.0" layoutY="180.0" styleClass="subtitle-label" text="Loại hạt" />
     <ComboBox fx:id="cb_seed_type" layoutX="14.0" layoutY="200.0" prefHeight="34.0" prefWidth="240.0" />
-    <Label layoutX="271.0" layoutY="180.0" styleClass="subtitle-label" text="Có / Không Râu" />
+    <Label layoutX="271.0" layoutY="180.0" styleClass="subtitle-label" text="Có / Không râu" />
     <ComboBox fx:id="cb_awns" layoutX="271.0" layoutY="200.0" prefHeight="34.0" prefWidth="240.0" />
-    <Label layoutX="527.0" layoutY="180.0" styleClass="subtitle-label" text="Màu Sắc" />
+    <Label layoutX="527.0" layoutY="180.0" styleClass="subtitle-label" text="Màu sắc" />
     <ComboBox fx:id="cb_color" layoutX="527.0" layoutY="200.0" prefHeight="34.0" prefWidth="240.0" />
-    <Label layoutX="14.0" layoutY="302.0" styleClass="subtitle-label" text="Thư Mục Dự Án" />
-    <Button fx:id="btn_parent_path" layoutX="14.0" layoutY="322.0" mnemonicParsing="false" text="Chọn Thư Mục" />
-    <Button fx:id="btn_create" layoutX="14.0" layoutY="480.0" mnemonicParsing="false" text="Tạo Dự Án" />
+    <Label layoutX="14.0" layoutY="302.0" styleClass="subtitle-label" text="Thư mục dự án" />
+    <Button fx:id="btn_parent_path" layoutX="14.0" layoutY="322.0" mnemonicParsing="false" text="Chọn thư mục" />
+    <Button fx:id="btn_create" layoutX="14.0" layoutY="480.0" mnemonicParsing="false" text="Tạo dự án" />
     <Button fx:id="btn_cancel" layoutX="135.0" layoutY="480.0" mnemonicParsing="false" styleClass="button-cancel" text="Hủy" />
     <Label fx:id="lbl_parent_path" layoutX="159.0" layoutY="331.0" text="Chưa chọn thư mục nào" />
    <Label layoutX="14.0" layoutY="240.0" styleClass="subtitle-label" text="Khối lượng (gram)" />
