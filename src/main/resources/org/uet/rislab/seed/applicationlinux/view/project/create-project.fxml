@@ -20,11 +20,13 @@
     <ComboBox fx:id="cb_awns" layoutX="271.0" layoutY="200.0" prefHeight="34.0" prefWidth="240.0" />
     <Label layoutX="527.0" layoutY="180.0" styleClass="subtitle-label" text="Màu sắc" />
     <ComboBox fx:id="cb_color" layoutX="527.0" layoutY="200.0" prefHeight="34.0" prefWidth="240.0" />
-    <Label layoutX="14.0" layoutY="302.0" styleClass="subtitle-label" text="Thư mục dự án" />
-    <Button fx:id="btn_parent_path" layoutX="14.0" layoutY="322.0" mnemonicParsing="false" text="Chọn thư mục" />
+    <Label layoutX="14.0" layoutY="360.0" styleClass="subtitle-label" text="Thư mục dự án" />
+    <Button fx:id="btn_parent_path" layoutX="14.0" layoutY="380.0" mnemonicParsing="false" text="Chọn thư mục" />
     <Button fx:id="btn_create" layoutX="14.0" layoutY="480.0" mnemonicParsing="false" text="Tạo dự án" />
     <Button fx:id="btn_cancel" layoutX="135.0" layoutY="480.0" mnemonicParsing="false" styleClass="button-cancel" text="Hủy" />
-    <Label fx:id="lbl_parent_path" layoutX="159.0" layoutY="331.0" text="Chưa chọn thư mục nào" />
-   <Label layoutX="14.0" layoutY="240.0" styleClass="subtitle-label" text="Khối lượng (gram)" />
-   <TextField fx:id="txt_weight" layoutX="14.0" layoutY="260.0" prefHeight="34.0" prefWidth="754.0" />
+    <Label fx:id="lbl_parent_path" layoutX="158.0" layoutY="388.0" text="Chưa chọn thư mục nào" />
+    <Label layoutX="14.0" layoutY="240.0" styleClass="subtitle-label" text="Tổng khối lượng (gram)" />
+    <TextField fx:id="txt_weight" layoutX="14.0" layoutY="260.0" prefHeight="34.0" prefWidth="754.0" />
+    <Label layoutX="14.0" layoutY="300.0" styleClass="subtitle-label" text="Kích thước đường kính vật đối chứng (mm)" />
+    <TextField fx:id="txt_ground_truth" layoutX="14.0" layoutY="320.0" prefHeight="34.0" prefWidth="754.0" />
 </AnchorPane>
