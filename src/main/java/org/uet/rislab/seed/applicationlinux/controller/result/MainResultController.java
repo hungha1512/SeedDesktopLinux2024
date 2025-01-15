@@ -97,8 +97,8 @@ public class MainResultController implements Initializable {
         File imageDir = new File(IMAGE_ANALYSIS_PATH);
         File csvDir = new File(CSV_RESULT_PATH);
 
-        imageFiles = imageDir.listFiles((dir, name) -> name.toLowerCase().endsWith(".jpg") && name.contains("_result"));
-        csvFiles = csvDir.listFiles((dir, name) -> name.toLowerCase().endsWith(".csv") && name.contains("_result"));
+        imageFiles = imageDir.listFiles((dir, name) -> name.toLowerCase().endsWith(".jpg"));
+        csvFiles = csvDir.listFiles((dir, name) -> name.toLowerCase().endsWith(".csv"));
 
         if (imageFiles == null || imageFiles.length == 0) {
             System.err.println("No image files found in " + IMAGE_ANALYSIS_PATH);

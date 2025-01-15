@@ -23,9 +23,10 @@ public class MainAnalyzeController implements Initializable {
     @FXML
     public ProgressBar pb_analyze;
 
-    private static String IMAGE_FOLDER = AppProperties.getProperty("parentPath") + "/Image"; // Update this to your Image folder path
-    private static final String PYTHON_SCRIPT = "src/main/java/org/uet/rislab/seed/applicationlinux/pythoncore/inference_image_plus_plus.py"; // Update this to your Python script path
-    private static final String PROJECT_DIR = AppProperties.getProperty("parentPath"); // Update this to your project directory
+    private static String IMAGE_FOLDER = AppProperties.getProperty("parentPath") + "/Image";
+    private static final String PYTHON_SCRIPT = "src/main/java/org/uet/rislab/seed/applicationlinux/pythoncore/inference_image_plus_plus.py";
+    private static final String PROJECT_DIR = AppProperties.getProperty("parentPath");
+    private static final String GROUND_TRUTH_SIZE = AppProperties.getProperty("groundTruth");
     private static final int THREAD_COUNT = 2; // Number of files to process simultaneously
 
     @Override
@@ -99,8 +100,8 @@ public class MainAnalyzeController implements Initializable {
 
         // Construct the command to activate the environment and run the script
         String command = String.format(
-                "bash -c 'source %s ApplicationLinux && %s %s --image-path \"%s\" --project-dir \"%s\"'",
-                condaActivatePath, pythonExecutable, PYTHON_SCRIPT, imageFile.getAbsolutePath(), PROJECT_DIR
+                "bash -c 'source %s ApplicationLinux && %s %s --image-path \"%s\" --project-dir \"%s\" --ground-size %s'",
+                condaActivatePath, pythonExecutable, PYTHON_SCRIPT, imageFile.getAbsolutePath(), PROJECT_DIR, GROUND_TRUTH_SIZE
         );
 
         System.out.println("Executing command: " + command);
