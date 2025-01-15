@@ -43,6 +43,8 @@ public class CreateProjectController implements Initializable {
     public Button btn_cancel;
     @FXML
     public Label lbl_parent_path;
+    @FXML
+    public TextField txt_ground_truth;
 
     private final AlertService alertService = new AlertService();
 
@@ -133,6 +135,8 @@ public class CreateProjectController implements Initializable {
         String projectName = txt_project_name.getText().trim();
         String projectDescription = txt_project_description.getText().trim();
         String weightInput = txt_weight.getText().trim();
+        String groundTruth = txt_ground_truth.getText().trim();
+
         if (!isInputValid(projectName, projectDescription)) {
             alertService.showAlert(Alert.AlertType.WARNING, "Thiếu thông tin", "Tên dự án và mô tả không được để trống");
             return;
@@ -141,6 +145,9 @@ public class CreateProjectController implements Initializable {
         weightInput = weightInput.replace(",", ".");
         double weight;
 
+        groundTruth = groundTruth.replace(",", ".");
+        double groundTruthValue;
+
         try {
             weight = Double.parseDouble(weightInput);
         } catch (NumberFormatException e) {
@@ -148,9 +155,16 @@ public class CreateProjectController implements Initializable {
             return;
         }
 
+        try {
+            groundTruthValue = Double.parseDouble(groundTruth);
+        } catch (NumberFormatException e) {
+            alertService.showAlert(Alert.AlertType.ERROR, "Lỗi", "Giá trị vật đố chứng không hợp lệ! Vui lòng nhập số hợp lệ.");
+            return;
+        }
+
         File projectFolder = createProjectFolders(lbl_parent_path.getText(), projectName);
 
-        saveProjectProperties(projectFolder, projectName, projectDescription, eSeedType, eAwns, eColor, weight);
+        saveProjectProperties(projectFolder, projectName, projectDescription, eSeedType, eAwns, eColor, weight, groundTruthValue);
 
         alertService.showAlert(Alert.AlertType.INFORMATION, "Tạo Dự Án Thành Công", "Dự án đã được tạo thành công");
         navigateToProjectPage();
@@ -191,7 +205,7 @@ public class CreateProjectController implements Initializable {
     }
 
     private void saveProjectProperties(File projectFolder, String projectName, String description,
-                                       String eSeedType, String eAwns, String eColor, double weight) throws IOException {
+                                       String eSeedType, String eAwns, String eColor, double weight, double groundTruth) throws IOException {
         File propertiesFile = new File(projectFolder, "application.properties");
         if (!propertiesFile.exists()) {
             propertiesFile.createNewFile();
@@ -202,6 +216,7 @@ public class CreateProjectController implements Initializable {
         AppProperties.setProperty("projectName", projectName);
         AppProperties.setProperty("description", description);
         AppProperties.setProperty("weight", String.valueOf(weight));
+        AppProperties.setProperty("groundTruth", String.valueOf(groundTruth));
         AppProperties.setProperty("eSeedType", eSeedType);
         AppProperties.setProperty("eAwns", eAwns);
         AppProperties.setProperty("eColor", eColor);
@@ -212,7 +227,6 @@ public class CreateProjectController implements Initializable {
 
     private void navigateToProjectPage() {
         try {
-            // Cập nhật global properties
             String globalPropertiesPath = "src/main/resources/application.properties";
             AppProperties.setPropertiesFilePath(globalPropertiesPath);
             AppProperties.setProperty("isProjectOpened", "true");
@@ -220,6 +234,7 @@ public class CreateProjectController implements Initializable {
             AppProperties.setProperty("projectName", txt_project_name.getText());
             AppProperties.setProperty("description", txt_project_description.getText());
             AppProperties.setProperty("weight", txt_weight.getText());
+            AppProperties.setProperty("groundTruth", txt_ground_truth.getText());
             AppProperties.setProperty("eSeedType", getComboBoxValue(cb_seed_type));
             AppProperties.setProperty("eAwns", getComboBoxValue(cb_awns));
             AppProperties.setProperty("eColor", getComboBoxValue(cb_color));
@@ -227,12 +242,10 @@ public class CreateProjectController implements Initializable {
 
             System.out.println("Global application.properties updated successfully.");
 
-            // Gọi DashboardController để load lại main-project.fxml
             if (dashboardController != null) {
                 dashboardController.getContentPane("/org/uet/rislab/seed/applicationlinux/view/project/main-project.fxml");
             }
 
-            // Đóng cửa sổ tạo dự án
             Stage currentStage = (Stage) btn_create.getScene().getWindow();
             currentStage.close();
 
