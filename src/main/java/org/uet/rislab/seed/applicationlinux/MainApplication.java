@@ -14,8 +14,8 @@ public class MainApplication extends Application {
     public void start(Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("/org/uet/rislab/seed/applicationlinux/view/dashboard.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
-        stage.setTitle("UET Application");
-        stage.getIcons().add(new Image(Objects.requireNonNull(MainApplication.class.getResourceAsStream("/org/uet/rislab/seed/applicationlinux/media/logo4.png"))));
+        stage.setTitle("Phần Mềm Phân Tích Hạt");
+        stage.getIcons().add(new Image(Objects.requireNonNull(MainApplication.class.getResourceAsStream("/org/uet/rislab/seed/applicationlinux/media/logo.png"))));
         stage.setScene(scene);
         stage.show();
     }
