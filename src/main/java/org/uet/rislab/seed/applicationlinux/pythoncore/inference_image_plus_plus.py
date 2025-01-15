@@ -1,97 +1,104 @@
 import argparse
 import cv2
 import numpy as np
-import matplotlib.pyplot as plt
 import pandas as pd
-import os
-
 import tensorflow as tf
-from tensorflow.keras.preprocessing.image import img_to_array, load_img
 from tensorflow.keras.layers import Input, Conv2D, MaxPooling2D, Conv2DTranspose, concatenate
 from tensorflow.keras.models import Model
+import os
 
-from sklearn.model_selection import train_test_split
-import glob
-
+# TensorFlow GPU setup
 gpus = tf.config.experimental.list_physical_devices('GPU')
 if gpus:
     try:
         for gpu in gpus:
-            tf.config.experimental.set_memory_growth(gpu, True)  # Enable memory growth
+            tf.config.experimental.set_memory_growth(gpu, True)
             tf.config.experimental.set_virtual_device_configuration(
-                gpu,
-                [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=4096)]  # Set limit in MB
+                gpu, [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=4096)]
             )
     except RuntimeError as e:
-        print(e)
+        print(f"GPU configuration error: {e}")
 
-IMAGE_PATH = '/home/tower/Documents/App Counting/Test Prj/Test 17/Image/Anh1.jpg'
-PRETRAINED_WEIGHT = 'src/main/java/org/uet/rislab/seed/applicationlinux/pythoncore/unet_plus_plus_model.h5'
-image_size = (256, 256)  # Resize ảnh về kích thước cố định
-
-
+# Constants
+image_size = (256, 256)  # Fixed input size for model
+OBJECT_THRESHOLD = 0.5
+PRETRAINED_WEIGHT = "src/main/java/org/uet/rislab/seed/applicationlinux/pythoncore/unetpp_model.h5"
+# Load image for inference
 def load_image_infer(img_path):
     img = cv2.imread(img_path)
-    img = cv2.resize(img, image_size)
-    img = np.array(img, dtype=np.float32) / 255
-    return img[None, ...]  # expand dims
+    if img is None:
+        raise FileNotFoundError(f"Image not found: {img_path}")
+    original_size = img.shape[:2][::-1]  # (width, height)
+    img_resized = cv2.resize(img, image_size)
+    img_resized = np.array(img_resized, dtype=np.float32) / 255
+    return img_resized[None, ...], original_size, img
 
+# Calculate coin diameter
+def calculate_coin_diameter(mask, min_size, object_threshold):
+    contours, _ = cv2.findContours((mask > object_threshold).astype(np.uint8), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    for contour in contours:
+        rect = cv2.minAreaRect(contour)
+        width, height = rect[1]
+        diameter = max(width, height)
+        if diameter > min_size:
+            return diameter
+    return None
 
-def calculate_dimensions(mask, mask_threshold=0.5):
+# Calculate dimensions
+def calculate_dimensions(mask, original_size, real_coin_diameter_mm, mask_threshold=OBJECT_THRESHOLD, min_coin_size=30):
     dimensions = []
-    contours, _ = cv2.findContours((mask >= mask_threshold).astype(np.uint8),
-                                   cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    contours, _ = cv2.findContours((mask >= mask_threshold).astype(np.uint8), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     for contour in contours:
         rect = cv2.minAreaRect(contour)
         width, height = rect[1]
         dimensions.append((max(width, height), min(width, height)))
-    return dimensions
 
+    coin_dia = calculate_coin_diameter(mask, min_coin_size, mask_threshold)
+    if coin_dia is None:
+        print(f"WARNING: Coin diameter too small. Adjust parameters.")
+        return dimensions
 
-def visualize_results_optimized(image, mask, dimensions, save_image_path, result_csv_path, min_size=5, max_size=30):
-    """
-    Trực quan hóa các hạt lúa với độ rõ ràng hơn:
-    - Lọc bỏ các đối tượng quá lớn hoặc quá nhỏ.
-    - Hiển thị chữ không bị chồng lấn.
-    """
-    output_image = image.copy()
-    contours, _ = cv2.findContours((mask > 0.5).astype(np.uint8),
-                                   cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    dimensions_mm = [(w * real_coin_diameter_mm / coin_dia, h * real_coin_diameter_mm / coin_dia) for w, h in dimensions]
+    return dimensions_mm
 
-    count = -1
-    widths = []
-    lengths = []
+# Visualize results
+def visualize_results_optimized(image, mask, dimensions, image_path, image_analysis_dir, result_dir, original_size, original_image, min_size=1, max_size=16):
+    output_image = original_image.copy()
+    mask_resized = cv2.resize(mask, original_size, interpolation=cv2.INTER_NEAREST)
+    contours, _ = cv2.findContours((mask_resized > OBJECT_THRESHOLD).astype(np.uint8), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    ids, widths, lengths = [], [], []
+    id = 0
     for i, contour in enumerate(contours):
+        if i >= len(dimensions):
+            continue
         length, width = dimensions[i]
         if length < min_size or width < min_size or length > max_size or width > max_size:
             continue
-
-        count += 1
         widths.append(width)
         lengths.append(length)
 
-        # Vẽ contour
+        id += 1
+        ids.append(id)
         rect = cv2.minAreaRect(contour)
         box = cv2.boxPoints(rect)
         box = np.int0(box)
-        cv2.drawContours(output_image, [box], 0, (0, 255, 0), 1)
+        cv2.drawContours(output_image, [box], 0, (0, 255, 0), 2)
 
-        # Chú thích
-        x, y = int(rect[0][0]), int(rect[0][1]) - 10
-        cv2.putText(output_image, f"{count}",
-                    (x, y), cv2.FONT_HERSHEY_SIMPLEX, 0.2, (255, 0, 0), 1, cv2.LINE_AA)
+        x, y = int(rect[0][0]), int(rect[0][1])  # Center of the rectangle
+        label_id = f"{id}"
+        cv2.putText(
+            output_image, label_id, (x, y - 10),  # Slightly above the center
+            cv2.FONT_HERSHEY_SIMPLEX, 3, (0, 0, 255), 2, cv2.LINE_AA
+        )
 
-    plt.figure(figsize=(10, 10))
-    plt.imshow(cv2.cvtColor(output_image, cv2.COLOR_BGR2RGB))
-    plt.title("Optimized Visualization")
-    plt.axis("off")
+    image_name = os.path.splitext(os.path.basename(image_path))[0]
+    annotated_path = os.path.join(image_analysis_dir, f"{image_name}_annotated.jpg")
+    csv_path = os.path.join(result_dir, f"{image_name}_dimensions.csv")
 
-    plt.savefig(save_image_path)
-
-    # Lưu kết quả vào CSV
-    df_result = pd.DataFrame({'width': widths, 'height': lengths})
-    df_result.to_csv(result_csv_path, index=True)
-
+    cv2.imwrite(annotated_path, output_image)
+    pd.DataFrame({'ID': ids,'Chiều rộng (mm)': widths, 'Chiều dài (mm)': lengths}).to_csv(csv_path, index=False)
+    print(f"Annotated image saved to: {annotated_path}")
+    print(f"Dimensions saved to: {csv_path}")
 
 def conv_block(x, filters, kernel_size=3, activation='relu', padding='same'):
     x = Conv2D(filters, kernel_size, activation=activation, padding=padding)(x)
@@ -155,43 +162,26 @@ def unet_plus_plus_model(input_size=(256, 256, 3)):
     outputs = Conv2D(1, (1, 1), activation='sigmoid')(c1_2)
 
     model = Model(inputs=[inputs], outputs=[outputs])
-
     return model
 
-
+# Main script
 if __name__ == '__main__':
-    # -- 1. Parse command-line arguments --
-    parser = argparse.ArgumentParser(description="Inference script for rice seed segmentation.")
+    parser = argparse.ArgumentParser(description="Rice Seed Analysis")
     parser.add_argument("--image-path", type=str, required=True, help="Path to the input image.")
-    parser.add_argument("--project-dir", type=str, required=True, help="Path to the project directory.")
+    parser.add_argument("--project-dir", type=str, required=True, help="Directory to save outputs.")
+    parser.add_argument("--ground-size", type=float, required=True, help="Diameter of the reference object in mm.")
     args = parser.parse_args()
 
-    # -- 2. Define folder paths --
-    image_analysis_dir = os.path.join(args.project_dir, "Image_analysis")
-    result_dir = os.path.join(args.project_dir, "Result")
+    output_dir = args.project_dir
+    os.makedirs(output_dir, exist_ok=True)
 
-    # Create directories if they don't exist
-    os.makedirs(image_analysis_dir, exist_ok=True)
-    os.makedirs(result_dir, exist_ok=True)
+    image_analysis_dir = os.path.join(output_dir, "Image_analysis")
+    result_dir = os.path.join(output_dir, "Result")
 
-    # -- 3. Derive output filenames from the input filename --
-    input_filename = os.path.basename(args.image_path)  # Extract filename (e.g., "image.jpg")
-    base_name, ext = os.path.splitext(input_filename)  # Split into base name and extension
-    save_image_path = os.path.join(image_analysis_dir, f"{base_name}_result{ext}")  # e.g., "image_result.jpg"
-    result_csv_path = os.path.join(result_dir, f"{base_name}_result.csv")  # e.g., "image_dimensions.csv"
-
-    # -- 4. Load model and weights --
     model = unet_plus_plus_model()
     model.load_weights(PRETRAINED_WEIGHT)
+    image, original_size, original_image = load_image_infer(args.image_path)
+    mask = model.predict(image)[0, :, :, 0]
 
-    # -- 5. Preprocess and predict --
-    image = load_image_infer(args.image_path)
-    mask = model.predict(image)
-
-    # -- 6. Postprocess and visualize --
-    # Convert back to uint8 for visualization
-    original_image = (image[0] * 255).astype(np.uint8)
-    mask = mask[0, :, :, 0]
-    dimensions = calculate_dimensions(mask)
-
-    visualize_results_optimized(original_image, mask, dimensions, save_image_path, result_csv_path)
+    dimensions = calculate_dimensions(mask, original_size, args.ground_size)
+    visualize_results_optimized(image, mask, dimensions, args.image_path, image_analysis_dir, result_dir, original_size, original_image)
