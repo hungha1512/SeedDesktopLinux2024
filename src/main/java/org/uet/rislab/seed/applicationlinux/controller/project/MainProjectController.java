@@ -50,6 +50,8 @@ public class MainProjectController implements Initializable {
     public Label lbl_parent_path;
     @FXML
     public Button btn_edit_save;
+    @FXML
+    public TextField txt_ground_truth;
 
     private DashboardController dashboardController;
 
@@ -59,34 +61,21 @@ public class MainProjectController implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         AppProperties.setPropertiesFilePath("src/main/resources/application.properties");
         // Input data to project name text field
-        try {
-            txt_project_name.setText(new String(AppProperties.getProperty("projectName").getBytes(), "UTF-8"));
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
-        }
+        txt_project_name.setText(new String(AppProperties.getProperty("projectName").getBytes(), StandardCharsets.UTF_8));
         txt_project_name.setEditable(false);
 
         // Input data to project description text field
-        try {
-            txt_project_description.setText(new String(AppProperties.getProperty("description").getBytes(), "UTF-8"));
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
-        }
+        txt_project_description.setText(new String(AppProperties.getProperty("description").getBytes(), StandardCharsets.UTF_8));
         txt_project_description.setEditable(false);
 
-        try {
-            txt_weight.setText(new String(AppProperties.getProperty("weight").getBytes(), "UTF-8"));
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
-        }
+        txt_weight.setText(new String(AppProperties.getProperty("weight").getBytes(), StandardCharsets.UTF_8));
         txt_weight.setEditable(false);
 
+        txt_ground_truth.setText(new String(AppProperties.getProperty("groundTruth").getBytes(), StandardCharsets.UTF_8));
+        txt_ground_truth.setEditable(false);
+
         // Input data to seed type combo box
-        try {
-            cb_seed_type.setValue(new String(AppProperties.getProperty("eSeedType").getBytes(), "UTF-8"));
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
-        }
+        cb_seed_type.setValue(new String(AppProperties.getProperty("eSeedType").getBytes(), StandardCharsets.UTF_8));
         cb_seed_type.setDisable(true);
 
         // Input data to awns combo box
@@ -145,7 +134,8 @@ public class MainProjectController implements Initializable {
                 // Update UI fields with loaded properties
                 txt_project_name.setText(properties.getProperty("projectName", ""));
                 txt_project_description.setText(properties.getProperty("description", ""));
-                txt_weight.setText(properties.getProperty("weight", ""));
+                txt_weight.setText(properties.getProperty("weight", "0.0"));
+                txt_ground_truth.setText(properties.getProperty("groundTruth", "0.0"));
                 cb_seed_type.setValue(properties.getProperty("eSeedType", ""));
                 cb_awns.setValue(properties.getProperty("eAwns", ""));
                 cb_color.setValue(properties.getProperty("eColor", ""));
@@ -154,12 +144,12 @@ public class MainProjectController implements Initializable {
                 // Update global properties
                 AppProperties.setProperty("projectName", properties.getProperty("projectName", ""));
                 AppProperties.setProperty("description", properties.getProperty("description", ""));
-                AppProperties.setProperty("weight", properties.getProperty("weight", ""));
+                AppProperties.setProperty("weight", properties.getProperty("weight", "0.0"));
+                AppProperties.setProperty("groundTruth", properties.getProperty("groundTruth", "0.0"));
                 AppProperties.setProperty("eSeedType", properties.getProperty("eSeedType", ""));
                 AppProperties.setProperty("eAwns", properties.getProperty("eAwns", ""));
                 AppProperties.setProperty("eColor", properties.getProperty("eColor", ""));
                 AppProperties.setProperty("parentPath", properties.getProperty("parentPath", ""));
-                AppProperties.setProperty("isProjectOpened", "true");
 
                 System.out.println("Dự án đã được mở thành công từ: " + selectedFile.getAbsolutePath());
 
@@ -175,6 +165,7 @@ public class MainProjectController implements Initializable {
     public void handleEditProject() {
         txt_project_name.setEditable(true);
         txt_weight.setEditable(true);
+        txt_ground_truth.setEditable(true);
         txt_project_description.setEditable(true);
         cb_seed_type.setDisable(false);
         cb_awns.setDisable(false);
@@ -209,12 +200,11 @@ public class MainProjectController implements Initializable {
         cb_color.setValue(AppProperties.getProperty("eColor"));
 
         btn_edit_save.setOnAction(event -> {
-            File propertiesFile;
-            Properties properties = new Properties();
             try {
                 String newProjectName = txt_project_name.getText().trim();
                 String projectDescription = txt_project_description.getText().trim();
                 String weightInput = txt_weight.getText().trim();
+                String groundTruthInput = txt_ground_truth.getText().trim();
                 String seedType = cb_seed_type.getValue().toString();
                 String awns = cb_awns.getValue().toString();
                 String color = cb_color.getValue().toString();
@@ -228,6 +218,16 @@ public class MainProjectController implements Initializable {
                     weight = Double.parseDouble(weightInput);
                 } catch (NumberFormatException e) {
                     alertService.showAlert(Alert.AlertType.ERROR, "Lỗi", "Trọng lượng không hợp lệ! Vui lòng nhập số hợp lệ.");
+                    return;
+                }
+
+                groundTruthInput = groundTruthInput.replace(",", ".");
+                double groundTruth;
+
+                try {
+                    groundTruth = Double.parseDouble(groundTruthInput);
+                } catch (NumberFormatException e) {
+                    alertService.showAlert(Alert.AlertType.ERROR, "Lỗi", "Ground truth không hợp lệ! Vui lòng nhập số hợp lệ.");
                     return;
                 }
 
@@ -249,6 +249,7 @@ public class MainProjectController implements Initializable {
                     }
 
                     updateProjectFolder(oldProjectFolder, newProjectFolder);
+                    newParentPath = newProjectFolder.getAbsolutePath();
                 }
                 // Case 2: Change parent path only
                 else if (!oldParentPath.equals(newParentPath)) {
@@ -260,6 +261,7 @@ public class MainProjectController implements Initializable {
                     }
 
                     updateProjectFolder(oldProjectFolder, newProjectFolder);
+                    newParentPath = newProjectFolder.getAbsolutePath();
                 }
                 // Case 3: Nothing changes
                 else {
@@ -270,17 +272,17 @@ public class MainProjectController implements Initializable {
                 AppProperties.setProperty("projectName", newProjectName);
                 AppProperties.setProperty("description", projectDescription);
                 AppProperties.setProperty("weight", String.valueOf(weight));
+                AppProperties.setProperty("groundTruth", String.valueOf(groundTruth));
                 AppProperties.setProperty("eSeedType", seedType);
                 AppProperties.setProperty("eAwns", awns);
                 AppProperties.setProperty("eColor", color);
                 AppProperties.setProperty("parentPath", newParentPath);
-                AppProperties.setProperty("isProjectOpened", "true");
 
                 resetEditMode();
                 alertService.showAlert(Alert.AlertType.INFORMATION, "Thành công", "Dự án đã được cập nhật thành công!");
 
                 // Reload project data
-                reloadProjectData();
+                reloadProjectData(newParentPath + "/application.properties");
             } catch (Exception e) {
                 e.printStackTrace();
                 alertService.showAlert(Alert.AlertType.ERROR, "Lỗi", "Có lỗi xảy ra khi lưu dự án: " + e.getMessage());
@@ -288,7 +290,7 @@ public class MainProjectController implements Initializable {
         });
 
         btn_cancel.setOnAction(event -> {
-            reloadProjectData();
+            reloadProjectData(AppProperties.getProperty("parentPath"));
             resetEditMode();
         });
     }
@@ -297,10 +299,31 @@ public class MainProjectController implements Initializable {
         this.dashboardController = dashboardController;
     }
 
-    private void reloadProjectData() {
+    private void reloadProjectData(String newParentPath) {
+        String globalPropertiesFilePath = "src/main/resources/application.properties";
+        String projectName = AppProperties.getProperty("projectName");
+        String description = AppProperties.getProperty("description");
+        String weight = AppProperties.getProperty("weight");
+        String groundTruth = AppProperties.getProperty("groundTruth");
+        String eSeedType = AppProperties.getProperty("eSeedType");
+        String eAwns = AppProperties.getProperty("eAwns");
+        String eColor = AppProperties.getProperty("eColor");
+        String parentPath = AppProperties.getProperty("parentPath");
+
+        AppProperties.setPropertiesFilePath(globalPropertiesFilePath);
+        AppProperties.setProperty("projectName", projectName);
+        AppProperties.setProperty("description", description);
+        AppProperties.setProperty("weight", weight);
+        AppProperties.setProperty("groundTruth", groundTruth);
+        AppProperties.setProperty("eSeedType", eSeedType);
+        AppProperties.setProperty("eAwns", eAwns);
+        AppProperties.setProperty("eColor", eColor);
+        AppProperties.setProperty("parentPath", parentPath);
+
         txt_project_name.setText(AppProperties.getProperty("projectName"));
         txt_project_description.setText(AppProperties.getProperty("description"));
         txt_weight.setText(AppProperties.getProperty("weight"));
+        txt_ground_truth.setText(AppProperties.getProperty("groundTruth"));
         cb_seed_type.setValue(AppProperties.getProperty("eSeedType"));
         cb_awns.setValue(AppProperties.getProperty("eAwns"));
         cb_color.setValue(AppProperties.getProperty("eColor"));
@@ -312,6 +335,7 @@ public class MainProjectController implements Initializable {
         txt_project_name.setEditable(false);
         txt_project_description.setEditable(false);
         txt_weight.setEditable(false);
+        txt_ground_truth.setEditable(false);
         cb_seed_type.setDisable(true);
         cb_awns.setDisable(true);
         cb_color.setDisable(true);
@@ -361,10 +385,11 @@ public class MainProjectController implements Initializable {
         if (!propertiesFile.exists()) {
             propertiesFile.createNewFile();
         }
-
+        String newPath = newProjectFolder.getAbsolutePath();
         // Cập nhật file properties
-        AppProperties.setPropertiesFilePath(propertiesFile.getAbsolutePath());
-        AppProperties.setProperty("parentPath", newProjectFolder.getAbsolutePath());
+        AppProperties.setPropertiesFilePath(newPath + "/application.properties");
+        AppProperties.setProperty("parentPath", newPath);
+        System.out.println("Dự án đã được cập nhật thành công tại: " + newProjectFolder.getAbsolutePath());
     }
 
 }
