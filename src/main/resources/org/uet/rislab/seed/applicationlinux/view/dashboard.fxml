@@ -15,7 +15,7 @@
     <VBox layoutX="0" layoutY="0" prefHeight="287.0" prefWidth="218.0" styleClass="menu-bar">
         <ImageView fitHeight="100.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true">
             <image>
-                <Image url="@../media/logo4.png"/>
+                <Image url="@../media/logo.png"/>
             </image>
         </ImageView>
         <Button fx:id="btn_home_page" prefHeight="34.0" prefWidth="200.0" styleClass="menu-button"
