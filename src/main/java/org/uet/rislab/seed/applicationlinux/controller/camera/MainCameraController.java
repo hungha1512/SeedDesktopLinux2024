@@ -1,5 +1,7 @@
 package org.uet.rislab.seed.applicationlinux.controller.camera;
 
+import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
@@ -93,40 +95,74 @@ public class MainCameraController implements Initializable {
         gp_image_view.getChildren().clear();
         gp_image_view.getColumnConstraints().clear();
         gp_image_view.getRowConstraints().clear();
-
         gp_image_view.setHgap(10);
         gp_image_view.setVgap(10);
 
-        int column = 0;
-
         File imageFolder = new File(imageFolderPath);
-        File[] images = imageFolder.listFiles((dir, name) -> name.toLowerCase().endsWith(".jpg") || name.toLowerCase().endsWith(".png"));
+        File[] images = imageFolder.listFiles((dir, name) ->
+                name.toLowerCase().endsWith(".jpg") || name.toLowerCase().endsWith(".png"));
 
-        if (images != null) {
-            Arrays.sort(images, Comparator.comparingLong(File::lastModified).reversed());
-
-            for (File imageFile : images) {
-                // Create an ImageView for each image
-                ImageView imageView = new ImageView(new Image(imageFile.toURI().toString()));
-                imageView.setFitWidth(100);
-                imageView.setFitHeight(100);
-                imageView.setPreserveRatio(true);
-
-                imageView.setPreserveRatio(true);
-
-                Label imageNameLabel = new Label(imageFile.getName());
-                imageNameLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #333333;");
-                imageNameLabel.setWrapText(true);
-                imageNameLabel.setPrefWidth(100);
-
-                VBox imageBox = new VBox(5, imageView, imageNameLabel);
-                imageBox.setAlignment(Pos.CENTER);
-
-                gp_image_view.add(imageBox, column, 0);
-
-                column++;
-            }
+        if (images == null || images.length == 0) {
+            // No images to load
+            return;
         }
+
+        // Sort by last modified descending
+        Arrays.sort(images, Comparator.comparingLong(File::lastModified).reversed());
+
+        // Create a background Task
+        Task<Void> loadImagesTask = new Task<>() {
+            @Override
+            protected Void call() {
+                // We’ll add one image at a time in the background
+                for (int i = 0; i < images.length; i++) {
+                    // Check if the task was cancelled to stop early if needed
+                    if (isCancelled()) {
+                        break;
+                    }
+
+                    final File imageFile = images[i];
+
+                    // Load/Decode the image in the background at a reduced size (100x100)
+                    // Third/fourth parameters are requestedWidth/requestedHeight
+                    // The final two booleans preserveRatio/smooth
+                    Image thumbnail = new Image(imageFile.toURI().toString(), 95, 95, true, true);
+
+                    // Update the UI on the JavaFX Application Thread
+                    final int index = i; // needed to use inside runLater
+                    Platform.runLater(() -> {
+                        ImageView imageView = new ImageView(thumbnail);
+                        imageView.setFitWidth(95);
+                        imageView.setFitHeight(95);
+                        imageView.setPreserveRatio(true);
+
+                        Label imageNameLabel = new Label(imageFile.getName());
+                        imageNameLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #333333;");
+                        imageNameLabel.setWrapText(true);
+                        imageNameLabel.setPrefWidth(95);
+
+                        VBox imageBox = new VBox(5, imageView, imageNameLabel);
+                        imageBox.setAlignment(Pos.CENTER);
+
+                        // Place each image in a new column on row 0
+                        gp_image_view.add(imageBox, index, 0);
+                    });
+
+                    // (Optional) small delay to simulate incremental loading
+                    // so the user sees updates. Adjust or remove as needed.
+                    // try { Thread.sleep(10); } catch (InterruptedException e) { /* ignore */ }
+                }
+                return null;
+            }
+        };
+
+        // You can add a listener to show progress in a ProgressBar or so
+        // loadImagesTask.progressProperty().addListener(...);
+
+        // Run the task on a background thread
+        Thread loadThread = new Thread(loadImagesTask);
+        loadThread.setDaemon(true);
+        loadThread.start();
     }
 
     @FXML
