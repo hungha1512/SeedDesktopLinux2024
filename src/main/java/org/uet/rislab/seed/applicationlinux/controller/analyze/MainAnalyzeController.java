@@ -11,8 +11,10 @@ import org.uet.rislab.seed.applicationlinux.global.AppProperties;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -28,6 +30,9 @@ public class MainAnalyzeController implements Initializable {
     private static final String PROJECT_DIR = AppProperties.getProperty("parentPath");
     private static final String GROUND_TRUTH_SIZE = AppProperties.getProperty("groundTruth");
     private static final int THREAD_COUNT = 2; // Number of files to process simultaneously
+
+    Properties properties = new Properties();
+    InputStream inputEnv = getClass().getClassLoader().getResourceAsStream("setting.properties");
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -50,7 +55,6 @@ public class MainAnalyzeController implements Initializable {
         int totalFiles = imageFiles.length;
         pb_analyze.setProgress(0);
 
-        // Create a Task to process the images
         Task<Void> analyzeTask = new Task<>() {
             private volatile int completedCount = 0; // Counter for completed tasks
 
@@ -88,20 +92,21 @@ public class MainAnalyzeController implements Initializable {
 
         pb_analyze.progressProperty().bind(analyzeTask.progressProperty());
 
-        // Run the task in a background thread
         Thread analyzeThread = new Thread(analyzeTask);
-        analyzeThread.setDaemon(true); // Ensure the thread does not block JVM shutdown
+        analyzeThread.setDaemon(true); // Daemon thread to stop when the application exits
         analyzeThread.start();
     }
 
     private void runPythonScript(File imageFile) throws IOException, InterruptedException {
-        String condaActivatePath = "/home/tower/anaconda3/bin/activate"; // Path to conda activate
-        String pythonExecutable = "python"; // Use "python" after activating environment
+        properties.load(inputEnv);
+        String condaActivatePath = properties.getProperty("condaActivatePath");
+        String pythonExecutable = properties.getProperty("pythonExecutableName");
+        String environmentName = properties.getProperty("condaEnvName");
 
         // Construct the command to activate the environment and run the script
         String command = String.format(
-                "bash -c 'source %s ApplicationLinux && %s %s --image-path \"%s\" --project-dir \"%s\" --ground-size %s'",
-                condaActivatePath, pythonExecutable, PYTHON_SCRIPT, imageFile.getAbsolutePath(), PROJECT_DIR, GROUND_TRUTH_SIZE
+                "bash -c 'source %s %s && %s %s --image-path \"%s\" --project-dir \"%s\" --ground-size %s'",
+                condaActivatePath, environmentName, pythonExecutable, PYTHON_SCRIPT, imageFile.getAbsolutePath(), PROJECT_DIR, GROUND_TRUTH_SIZE
         );
 
         System.out.println("Executing command: " + command);
