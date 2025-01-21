@@ -6,11 +6,13 @@ import org.uet.rislab.seed.applicationlinux.global.AppProperties;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
+import java.util.Properties;
 
 public class CaptureCameraService {
     private Pointer camera;
@@ -18,6 +20,10 @@ public class CaptureCameraService {
     private ConnectCameraService connectCameraService;
 
     private File lastCapturedImage;
+
+    private static final String PYTHON_SCRIPT = "src/main/java/org/uet/rislab/seed/applicationlinux/pythoncore/preprocess_capture_image.py";
+    Properties properties = new Properties();
+    InputStream inputEnv = getClass().getClassLoader().getResourceAsStream("setting.properties");
 
     public void setConnectCameraService(ConnectCameraService connectCameraService) {
         this.connectCameraService = connectCameraService;
@@ -61,6 +67,7 @@ public class CaptureCameraService {
             int exitCode = process.waitFor();
 
             if (exitCode == 0 && lastCapturedImage.exists()) {
+                preprocessCapturedImage(lastCapturedImage.getAbsolutePath());
                 System.out.println("Image captured successfully at: " + lastCapturedImage.getAbsolutePath());
             } else {
                 System.err.println("Failed to capture image. Exit code: " + exitCode);
@@ -114,5 +121,35 @@ public class CaptureCameraService {
             System.err.println("No image to delete.");
         }
         return false;
+    }
+
+    private void preprocessCapturedImage(String inputImagePath) throws IOException, InterruptedException {
+        properties.load(inputEnv);
+        String condaActivatePath = properties.getProperty("condaActivatePath");
+        String pythonExecutable = properties.getProperty("pythonExecutableName");
+        String environmentName = properties.getProperty("condaEnvName");
+
+        // Construct the command to activate the environment and run the script
+        String command = String.format(
+                "bash -c 'source %s %s && %s %s --input \"%s\" --output \"%s\"'",
+                condaActivatePath, environmentName, pythonExecutable, PYTHON_SCRIPT, inputImagePath, inputImagePath
+        );
+
+        System.out.println("Executing command: " + command);
+
+        ProcessBuilder processBuilder = new ProcessBuilder("bash", "-c", command);
+        processBuilder.redirectErrorStream(true); // Redirect error stream for easier debugging
+
+        Process process = processBuilder.start();
+        int exitCode = process.waitFor();
+
+        if (exitCode == 0) {
+            System.out.println("Preprocessed: " + inputImagePath);
+        } else {
+            System.err.println("Failed to preprocess: " + inputImagePath);
+            try (var errorStream = process.getInputStream()) {
+                System.err.println(new String(errorStream.readAllBytes())); // Print error output
+            }
+        }
     }
 }
