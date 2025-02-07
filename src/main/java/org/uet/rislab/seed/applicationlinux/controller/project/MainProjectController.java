@@ -12,7 +12,6 @@ import org.uet.rislab.seed.applicationlinux.controller.DashboardController;
 import org.uet.rislab.seed.applicationlinux.global.AppProperties;
 import org.uet.rislab.seed.applicationlinux.model.enums.EAwns;
 import org.uet.rislab.seed.applicationlinux.model.enums.EColor;
-import org.uet.rislab.seed.applicationlinux.model.enums.ESeedType;
 import org.uet.rislab.seed.applicationlinux.service.AlertService;
 
 import java.io.*;
@@ -34,8 +33,6 @@ public class MainProjectController implements Initializable {
     public TextField txt_project_description;
     @FXML
     public TextField txt_weight;
-    @FXML
-    public ComboBox cb_seed_type;
     @FXML
     public ComboBox cb_awns;
     @FXML
@@ -59,6 +56,7 @@ public class MainProjectController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        //TODO: Using entity for session instead of AppProperties
         AppProperties.setPropertiesFilePath("src/main/resources/application.properties");
         // Input data to project name text field
         txt_project_name.setText(new String(AppProperties.getProperty("projectName").getBytes(), StandardCharsets.UTF_8));
@@ -73,10 +71,6 @@ public class MainProjectController implements Initializable {
 
         txt_ground_truth.setText(new String(AppProperties.getProperty("groundTruth").getBytes(), StandardCharsets.UTF_8));
         txt_ground_truth.setEditable(false);
-
-        // Input data to seed type combo box
-        cb_seed_type.setValue(new String(AppProperties.getProperty("eSeedType").getBytes(), StandardCharsets.UTF_8));
-        cb_seed_type.setDisable(true);
 
         // Input data to awns combo box
         cb_awns.setValue(AppProperties.getProperty("eAwns"));
@@ -136,7 +130,6 @@ public class MainProjectController implements Initializable {
                 txt_project_description.setText(properties.getProperty("description", ""));
                 txt_weight.setText(properties.getProperty("weight", "0.0"));
                 txt_ground_truth.setText(properties.getProperty("groundTruth", "0.0"));
-                cb_seed_type.setValue(properties.getProperty("eSeedType", ""));
                 cb_awns.setValue(properties.getProperty("eAwns", ""));
                 cb_color.setValue(properties.getProperty("eColor", ""));
                 lbl_parent_path.setText(properties.getProperty("parentPath", "Chưa chọn thư mục nào"));
@@ -167,7 +160,6 @@ public class MainProjectController implements Initializable {
         txt_weight.setEditable(true);
         txt_ground_truth.setEditable(true);
         txt_project_description.setEditable(true);
-        cb_seed_type.setDisable(false);
         cb_awns.setDisable(false);
         cb_color.setDisable(false);
         lbl_parent_path.setDisable(false);
@@ -187,10 +179,6 @@ public class MainProjectController implements Initializable {
             }
         });
 
-        cb_seed_type.getItems().clear();
-        cb_seed_type.getItems().addAll(Arrays.stream(ESeedType.values()).map(ESeedType::getType).toArray(String[]::new));
-        cb_seed_type.setValue(AppProperties.getProperty("eSeedType"));
-
         cb_awns.getItems().clear();
         cb_awns.getItems().addAll(Arrays.stream(EAwns.values()).map(EAwns::getAwns).toArray(String[]::new));
         cb_awns.setValue(AppProperties.getProperty("eAwns"));
@@ -205,7 +193,6 @@ public class MainProjectController implements Initializable {
                 String projectDescription = txt_project_description.getText().trim();
                 String weightInput = txt_weight.getText().trim();
                 String groundTruthInput = txt_ground_truth.getText().trim();
-                String seedType = cb_seed_type.getValue().toString();
                 String awns = cb_awns.getValue().toString();
                 String color = cb_color.getValue().toString();
                 String oldParentPath = AppProperties.getProperty("parentPath");
@@ -227,7 +214,7 @@ public class MainProjectController implements Initializable {
                 try {
                     groundTruth = Double.parseDouble(groundTruthInput);
                 } catch (NumberFormatException e) {
-                    alertService.showAlert(Alert.AlertType.ERROR, "Lỗi", "Ground truth không hợp lệ! Vui lòng nhập số hợp lệ.");
+                    alertService.showAlert(Alert.AlertType.ERROR, "Lỗi", "Kích thước vật đối chứng không hợp lệ! Vui lòng nhập số hợp lệ.");
                     return;
                 }
 
@@ -273,7 +260,6 @@ public class MainProjectController implements Initializable {
                 AppProperties.setProperty("description", projectDescription);
                 AppProperties.setProperty("weight", String.valueOf(weight));
                 AppProperties.setProperty("groundTruth", String.valueOf(groundTruth));
-                AppProperties.setProperty("eSeedType", seedType);
                 AppProperties.setProperty("eAwns", awns);
                 AppProperties.setProperty("eColor", color);
                 AppProperties.setProperty("parentPath", newParentPath);
@@ -324,7 +310,6 @@ public class MainProjectController implements Initializable {
         txt_project_description.setText(AppProperties.getProperty("description"));
         txt_weight.setText(AppProperties.getProperty("weight"));
         txt_ground_truth.setText(AppProperties.getProperty("groundTruth"));
-        cb_seed_type.setValue(AppProperties.getProperty("eSeedType"));
         cb_awns.setValue(AppProperties.getProperty("eAwns"));
         cb_color.setValue(AppProperties.getProperty("eColor"));
         lbl_parent_path.setText(AppProperties.getProperty("parentPath"));
@@ -336,7 +321,6 @@ public class MainProjectController implements Initializable {
         txt_project_description.setEditable(false);
         txt_weight.setEditable(false);
         txt_ground_truth.setEditable(false);
-        cb_seed_type.setDisable(true);
         cb_awns.setDisable(true);
         cb_color.setDisable(true);
         lbl_parent_path.setDisable(true);

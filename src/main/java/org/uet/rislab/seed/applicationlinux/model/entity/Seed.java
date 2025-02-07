@@ -2,7 +2,6 @@ package org.uet.rislab.seed.applicationlinux.model.entity;
 
 import org.uet.rislab.seed.applicationlinux.model.enums.EAwns;
 import org.uet.rislab.seed.applicationlinux.model.enums.EColor;
-import org.uet.rislab.seed.applicationlinux.model.enums.ESeedType;
 
 public class Seed {
     private double length;

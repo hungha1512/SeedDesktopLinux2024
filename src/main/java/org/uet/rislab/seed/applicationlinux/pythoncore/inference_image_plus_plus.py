@@ -66,7 +66,7 @@ def visualize_results_optimized(image, mask, dimensions, image_path, image_analy
     output_image = original_image.copy()
     mask_resized = cv2.resize(mask, original_size, interpolation=cv2.INTER_NEAREST)
     contours, _ = cv2.findContours((mask_resized > OBJECT_THRESHOLD).astype(np.uint8), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    ids, widths, lengths = [], [], []
+    ids, widths, lengths, ratios, seed_types = [], [], [], [], []
     id = 0
     for i, contour in enumerate(contours):
         if i >= len(dimensions):
@@ -74,8 +74,23 @@ def visualize_results_optimized(image, mask, dimensions, image_path, image_analy
         length, width = dimensions[i]
         if length < min_size or width < min_size or length > max_size or width > max_size:
             continue
+        ratio = length / width
+
+        if ratio < 1.5:
+            seed_type = "Hạt Tròn"
+        elif ratio < 2:
+            seed_type = "Hạt Bán Tròn"
+        elif ratio < 2.5:
+            seed_type = "Hạt Bán Thon"
+        elif ratio < 3:
+            seed_type = "Hạt Thon"
+        else:
+            seed_type = "Hạt Thon Dài"
+        # Append the dimensions
         widths.append(width)
         lengths.append(length)
+        ratios.append(ratio)
+        seed_types.append(seed_type)
 
         id += 1
         ids.append(id)
@@ -88,7 +103,7 @@ def visualize_results_optimized(image, mask, dimensions, image_path, image_analy
         label_id = f"{id}"
         cv2.putText(
             output_image, label_id, (x, y - 10),  # Slightly above the center
-            cv2.FONT_HERSHEY_SIMPLEX, 3, (0, 0, 255), 2, cv2.LINE_AA
+            cv2.FONT_HERSHEY_SIMPLEX, 4, (0, 0, 255), 4, cv2.LINE_AA
         )
 
     image_name = os.path.splitext(os.path.basename(image_path))[0]
@@ -96,7 +111,7 @@ def visualize_results_optimized(image, mask, dimensions, image_path, image_analy
     csv_path = os.path.join(result_dir, f"{image_name}_dimensions.csv")
 
     cv2.imwrite(annotated_path, output_image)
-    pd.DataFrame({'ID': ids,'Chiều rộng (mm)': widths, 'Chiều dài (mm)': lengths}).to_csv(csv_path, index=False)
+    pd.DataFrame({'ID': ids,'Chiều rộng (mm)': widths, 'Chiều dài (mm)': lengths, 'Tỉ lệ D/R': ratios, 'Loại hạt': seed_types}).to_csv(csv_path, index=False)
     print(f"Annotated image saved to: {annotated_path}")
     print(f"Dimensions saved to: {csv_path}")
 

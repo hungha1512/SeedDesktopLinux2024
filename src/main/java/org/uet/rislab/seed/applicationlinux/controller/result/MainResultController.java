@@ -57,9 +57,6 @@ public class MainResultController implements Initializable {
     public Label lbl_type;
 
     @FXML
-    public Label lbl_average;
-
-    @FXML
     public Label lbl_weight;
 
     @FXML
@@ -83,7 +80,7 @@ public class MainResultController implements Initializable {
 
         lbl_project_name.setText(AppProperties.getProperty("projectName"));
         lbl_color.setText(AppProperties.getProperty("eColor"));
-        lbl_type.setText(AppProperties.getProperty("eSeedType") + ", " + AppProperties.getProperty("eAwns") + " râu");
+        lbl_type.setText(AppProperties.getProperty("eAwns") + " râu");
         lbl_weight.setText(AppProperties.getProperty("weight") + " gram");
     }
 
