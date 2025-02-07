@@ -12,7 +12,6 @@ import org.uet.rislab.seed.applicationlinux.controller.DashboardController;
 import org.uet.rislab.seed.applicationlinux.global.AppProperties;
 import org.uet.rislab.seed.applicationlinux.model.enums.EAwns;
 import org.uet.rislab.seed.applicationlinux.model.enums.EColor;
-import org.uet.rislab.seed.applicationlinux.model.enums.ESeedType;
 import org.uet.rislab.seed.applicationlinux.service.AlertService;
 
 import java.io.File;
@@ -29,8 +28,6 @@ public class CreateProjectController implements Initializable {
     public TextField txt_project_description;
     @FXML
     public TextField txt_weight;
-    @FXML
-    public ComboBox cb_seed_type;
     @FXML
     public ComboBox cb_awns;
     @FXML
@@ -84,11 +81,6 @@ public class CreateProjectController implements Initializable {
             }
         });
 
-        // Initialize the seed type combobox
-        cb_seed_type.getItems().clear();
-        cb_seed_type.getItems().addAll(Arrays.stream(ESeedType.values()).map(ESeedType::getType).toArray(String[]::new));
-        cb_seed_type.getSelectionModel().select(0);
-
         // Initialize the awns combobox
         cb_awns.getItems().clear();
         cb_awns.getItems().addAll(Arrays.stream(EAwns.values()).map(EAwns::getAwns).toArray(String[]::new));
@@ -128,7 +120,6 @@ public class CreateProjectController implements Initializable {
     }
 
     public void handleCreate() throws IOException {
-        String eSeedType = getComboBoxValue(cb_seed_type);
         String eAwns = getComboBoxValue(cb_awns);
         String eColor = getComboBoxValue(cb_color);
 
@@ -163,8 +154,6 @@ public class CreateProjectController implements Initializable {
         }
 
         File projectFolder = createProjectFolders(lbl_parent_path.getText(), projectName);
-
-        saveProjectProperties(projectFolder, projectName, projectDescription, eSeedType, eAwns, eColor, weight, groundTruthValue);
 
         alertService.showAlert(Alert.AlertType.INFORMATION, "Tạo Dự Án Thành Công", "Dự án đã được tạo thành công");
         navigateToProjectPage();
@@ -235,7 +224,6 @@ public class CreateProjectController implements Initializable {
             AppProperties.setProperty("description", txt_project_description.getText());
             AppProperties.setProperty("weight", txt_weight.getText());
             AppProperties.setProperty("groundTruth", txt_ground_truth.getText());
-            AppProperties.setProperty("eSeedType", getComboBoxValue(cb_seed_type));
             AppProperties.setProperty("eAwns", getComboBoxValue(cb_awns));
             AppProperties.setProperty("eColor", getComboBoxValue(cb_color));
             AppProperties.setProperty("updateDate", new java.util.Date().toString());

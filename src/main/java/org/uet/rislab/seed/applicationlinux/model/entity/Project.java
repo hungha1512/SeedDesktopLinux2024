@@ -2,7 +2,6 @@ package org.uet.rislab.seed.applicationlinux.model.entity;
 
 import org.uet.rislab.seed.applicationlinux.model.enums.EAwns;
 import org.uet.rislab.seed.applicationlinux.model.enums.EColor;
-import org.uet.rislab.seed.applicationlinux.model.enums.ESeedType;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -19,7 +18,6 @@ public class Project {
     private double weight;
     private List<Seed> seeds;
 
-    private ESeedType eSeedType;
     private EAwns eAwns;
     private EColor eColor;
 
@@ -39,12 +37,11 @@ public class Project {
         this.seeds = seeds;
         this.eAwns = EAwns.PRESENT;
         this.eColor = EColor.YELLOW;
-        this.eSeedType = ESeedType.LONG;
         this.weight = weight;
     }
 
     public Project(String projectId, String name, Date creationDate, String description, String imageFolderPath,
-                   String analysisDataPath, String resultCsvPath, List<Seed> seeds, ESeedType eSeedType, EAwns eAwns,
+                   String analysisDataPath, String resultCsvPath, List<Seed> seeds, EAwns eAwns,
                    EColor eColor) {
         this.projectId = projectId;
         this.name = name;
@@ -54,7 +51,6 @@ public class Project {
         this.analysisDataPath = analysisDataPath;
         this.resultCsvPath = resultCsvPath;
         this.seeds = seeds;
-        this.eSeedType = eSeedType;
         this.eAwns = eAwns;
         this.eColor = eColor;
         this.weight = weight;
@@ -124,13 +120,6 @@ public class Project {
         this.seeds = seeds;
     }
 
-    public ESeedType geteSeedType() {
-        return eSeedType;
-    }
-
-    public void seteSeedType(ESeedType eSeedType) {
-        this.eSeedType = eSeedType;
-    }
 
     public EAwns geteAwns() {
         return eAwns;
@@ -156,7 +145,6 @@ public class Project {
                 ", creationDate=" + creationDate +
                 ", description='" + description + '\'' +
                 ", eAwns=" + eAwns +
-                ", eSeedType=" + eSeedType +
                 ", eColor=" + eColor +
                 ", imageFolderPath='" + imageFolderPath + '\'' +
                 ", analysisDataPath='" + analysisDataPath + '\'' +
