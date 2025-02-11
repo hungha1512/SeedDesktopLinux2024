@@ -26,7 +26,7 @@ public class MainAnalyzeController implements Initializable {
     public ProgressBar pb_analyze;
 
     private static String IMAGE_FOLDER = AppProperties.getProperty("parentPath") + "/Image";
-    private static final String PYTHON_SCRIPT = "src/main/java/org/uet/rislab/seed/applicationlinux/pythoncore/inference_image_plus_plus.py";
+    private static final String PYTHON_SCRIPT = "src/main/java/org/uet/rislab/seed/applicationlinux/pythoncore/infer_opt.py";
     private static final String PROJECT_DIR = AppProperties.getProperty("parentPath");
     private static final String GROUND_TRUTH_SIZE = AppProperties.getProperty("groundTruth");
     private static final int THREAD_COUNT = 2; // Number of files to process simultaneously
