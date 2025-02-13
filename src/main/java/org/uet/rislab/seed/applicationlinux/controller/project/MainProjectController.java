@@ -88,7 +88,6 @@ public class MainProjectController implements Initializable {
 
         btn_create.setOnAction(event -> handleCreateProject());
         btn_open.setOnAction(event -> handleOpenProject());
-
     }
 
     public void handleCreateProject() {

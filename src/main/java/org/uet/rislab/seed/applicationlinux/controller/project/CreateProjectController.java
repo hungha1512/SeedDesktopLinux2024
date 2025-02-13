@@ -154,7 +154,7 @@ public class CreateProjectController implements Initializable {
         }
 
         File projectFolder = createProjectFolders(lbl_parent_path.getText(), projectName);
-
+        saveProjectProperties(projectFolder, projectName, projectDescription, eAwns, eColor, weight, groundTruthValue);
         alertService.showAlert(Alert.AlertType.INFORMATION, "Tạo Dự Án Thành Công", "Dự án đã được tạo thành công");
         navigateToProjectPage();
     }
@@ -194,7 +194,7 @@ public class CreateProjectController implements Initializable {
     }
 
     private void saveProjectProperties(File projectFolder, String projectName, String description,
-                                       String eSeedType, String eAwns, String eColor, double weight, double groundTruth) throws IOException {
+                                       String eAwns, String eColor, double weight, double groundTruth) throws IOException {
         File propertiesFile = new File(projectFolder, "application.properties");
         if (!propertiesFile.exists()) {
             propertiesFile.createNewFile();
@@ -206,7 +206,6 @@ public class CreateProjectController implements Initializable {
         AppProperties.setProperty("description", description);
         AppProperties.setProperty("weight", String.valueOf(weight));
         AppProperties.setProperty("groundTruth", String.valueOf(groundTruth));
-        AppProperties.setProperty("eSeedType", eSeedType);
         AppProperties.setProperty("eAwns", eAwns);
         AppProperties.setProperty("eColor", eColor);
         AppProperties.setProperty("creationDate", new java.util.Date().toString());
