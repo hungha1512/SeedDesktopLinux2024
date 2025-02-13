@@ -20,14 +20,17 @@ if gpus:
         print(f"GPU configuration error: {e}")
 
 MODEL_PATH = "src/main/java/org/uet/rislab/seed/applicationlinux/pythoncore/best.pt"
+
+
 # === Hàm tính khoảng cách Euclidean ===
 def euclidean_distance(p1, p2):
-    return math.sqrt((p1[0] - p2[0])**2 + (p1[1] - p2[1])**2)
+    return math.sqrt((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2)
+
 
 # === Hàm tính kích thước hạt từ MASK ===
 def calculate_seed_sizes_from_mask(image, masks, mm_per_pixel):
     seed_sizes_mm = []
-    
+
     for mask in masks:
         mask = np.array(mask, dtype=np.int32)
 
@@ -61,26 +64,28 @@ def calculate_seed_sizes_from_mask(image, masks, mm_per_pixel):
                 if dist < min_dist:
                     min_dist = dist
                     nearest_point = pt
-            
+
             width_px = min_dist * 2  # Chiều rộng là 2 lần khoảng cách đến điểm gần nhất
 
             # Chuyển đổi pixel → mm
-            seed_sizes_mm.append((length_px * mm_per_pixel, width_px * mm_per_pixel))  # Lưu đúng thứ tự chiều dài trước, chiều rộng sau
+            seed_sizes_mm.append(
+                (length_px * mm_per_pixel, width_px * mm_per_pixel))  # Lưu đúng thứ tự chiều dài trước, chiều rộng sau
         else:
             seed_sizes_mm.append((None, None))
 
     return seed_sizes_mm
 
+
 # === Hàm vẽ kết quả ===
 def visualize_and_save(image_path, seed_masks, seed_sizes_mm, coin_bbox, output_dir):
     image = cv2.imread(image_path)
-    ids, widths, lengths = [], [], []
+    ids, widths, lengths, ratios, seed_types = [], [], [], [], []
 
     # Vẽ bounding box đồng xu (nếu có)
     if coin_bbox is not None:
         min_x, min_y, max_x, max_y = map(int, coin_bbox)
         cv2.rectangle(image, (min_x, min_y), (max_x, max_y), (0, 0, 255), 2)
-        cv2.putText(image, "Coin", (min_x, min_y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
+        cv2.putText(image, "Coin", (min_x, min_y - 10), cv2.FONT_HERSHEY_SIMPLEX, 4, (0, 0, 255), 2)
 
     # Vẽ mask hạt thóc + hiển thị kích thước
     for i, (mask, size) in enumerate(zip(seed_masks, seed_sizes_mm)):
@@ -88,18 +93,34 @@ def visualize_and_save(image_path, seed_masks, seed_sizes_mm, coin_bbox, output_
 
         length_mm, width_mm = size
         if length_mm is not None and width_mm is not None:
-            text = f"{i+1}: {round(length_mm, 2)}x{round(width_mm, 2)} mm"
-            ids.append(i+1)
+            text = f"{i + 1}"
+            ratio = length_mm / width_mm;
+            if ratio < 1.5:
+                seed_type = "Hạt Tròn"
+            elif ratio < 2:
+                seed_type = "Hạt Bán Tròn"
+            elif ratio < 2.5:
+                seed_type = "Hạt Bán Thon"
+            elif ratio < 3:
+                seed_type = "Hạt Thon"
+            else:
+                seed_type = "Hạt Thon Dài"
+
+            ids.append(i + 1)
+            ratios.append(round(ratio, 2))
+            seed_types.append(seed_type)
             widths.append(round(width_mm, 2))
             lengths.append(round(length_mm, 2))
         else:
-            text = f"{i+1}: Không đo được"
-            ids.append(i+1)
+            text = f"{i + 1}: Không đo được"
+            ids.append(i + 1)
+            ratios.append(None)
+            seed_types.append(None)
             widths.append(None)
             lengths.append(None)
 
-        centroid = np.mean(mask, axis=0).astype(int)
-        cv2.putText(image, text, tuple(centroid), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 0, 0), 2)
+    centroid = np.mean(mask, axis=0).astype(int)
+    cv2.putText(image, text, tuple(centroid), cv2.FONT_HERSHEY_SIMPLEX, 4, (255, 0, 0), 2)
 
     # Lưu ảnh kết quả và CSV
     image_analysis_dir = os.path.join(output_dir, "Image_analysis")
@@ -110,7 +131,9 @@ def visualize_and_save(image_path, seed_masks, seed_sizes_mm, coin_bbox, output_
     csv_path = os.path.join(result_dir, f"{image_name}_dimensions.csv")
 
     cv2.imwrite(annotated_path, image)
-    pd.DataFrame({'ID': ids, 'Chiều dài (mm)': widths, 'Chiều rộng (mm)': lengths}).to_csv(csv_path, index=False)
+    pd.DataFrame({'ID': ids, 'Chiều rộng (mm)': widths, 'Chiều dài (mm)': lengths, 'Tỉ lệ D/R': ratios,
+                  'Loại hạt': seed_types}).to_csv(csv_path, index=False)
+
 
 # === Chương trình chính ===
 if __name__ == '__main__':
