@@ -2,10 +2,7 @@ package org.uet.rislab.seed.applicationlinux.controller.result;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -22,6 +19,9 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 public class MainResultController implements Initializable {
+
+    @FXML
+    private ScrollPane sp_image;
 
     @FXML
     private ImageView iv_result;
@@ -43,6 +43,9 @@ public class MainResultController implements Initializable {
 
     @FXML
     public Button btn_back;
+
+    @FXML
+    private Slider slider_zoom;
 
     @FXML
     public Label lbl_image;
@@ -69,9 +72,17 @@ public class MainResultController implements Initializable {
     private File[] csvFiles;
     private int currentIndex = 0;
 
+    private double zoomFactor = 0.1;
+    private double zoomStep = 0.1;
+    private final double minZoom = 0.2;
+    private final double maxZoom = 1;
+    private double dragStartX, dragStartY;
+    private double originalWidth, originalHeight;
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         setupTableColumns();
+        setupImageInteraction();
         loadFiles();
         if (imageFiles.length > 0 && csvFiles.length > 0) {
             displayResult(currentIndex);
@@ -121,6 +132,15 @@ public class MainResultController implements Initializable {
         if (imageFile.exists()) {
             Image image = new Image(imageFile.toURI().toString());
             iv_result.setImage(image);
+
+            originalWidth = image.getWidth();
+            originalHeight = image.getHeight();
+
+            iv_result.setFitWidth(originalWidth);
+            iv_result.setFitHeight(originalHeight);
+
+            slider_zoom.setValue(zoomFactor);
+            updateImageScale();
         } else {
             System.err.println("Image not found: " + imageFile.getAbsolutePath());
             lbl_image.setText("Image not found.");
@@ -138,7 +158,7 @@ public class MainResultController implements Initializable {
 
                 while ((line = reader.readLine()) != null) {
                     String[] data = line.split(",");
-                    if (data.length == 3) {
+                    if (data.length == 5) {
                         int id = Integer.parseInt(data[0].trim());
                         double height = Double.parseDouble(data[1].trim());
                         double width = Double.parseDouble(data[2].trim());
@@ -176,5 +196,52 @@ public class MainResultController implements Initializable {
 
     private void updateImageLabel() {
         lbl_image.setText((currentIndex + 1) + "/" + imageFiles.length);
+    }
+
+    private void setupImageInteraction() {
+        // Zoom bằng slider
+        slider_zoom.valueProperty().addListener((obs, oldVal, newVal) -> {
+            zoomFactor = newVal.doubleValue();
+            iv_result.setScaleX(zoomFactor);
+            iv_result.setScaleY(zoomFactor);
+        });
+
+        // Zoom bằng cuộn chuột
+        iv_result.setOnScroll(event -> {
+            if (event.getDeltaY() > 0) {
+                zoomFactor += zoomStep;  // Phóng to
+            } else {
+                zoomFactor -= zoomStep;  // Thu nhỏ
+            }
+
+            // Giới hạn zoom
+            zoomFactor = Math.max(minZoom, Math.min(zoomFactor, maxZoom));
+            slider_zoom.setValue(zoomFactor);
+            updateImageScale();
+        });
+
+        // Kéo ảnh bằng chuột
+        iv_result.setOnMousePressed(event -> {
+            dragStartX = event.getSceneX();
+            dragStartY = event.getSceneY();
+        });
+
+        iv_result.setOnMouseDragged(event -> {
+            double deltaX = event.getSceneX() - dragStartX;
+            double deltaY = event.getSceneY() - dragStartY;
+
+            sp_image.setHvalue(sp_image.getHvalue() - deltaX / sp_image.getWidth());
+            sp_image.setVvalue(sp_image.getVvalue() - deltaY / sp_image.getHeight());
+
+            dragStartX = event.getSceneX();
+            dragStartY = event.getSceneY();
+        });
+    }
+
+    private void updateImageScale() {
+        iv_result.setFitWidth(originalWidth * zoomFactor);
+        iv_result.setFitHeight(originalHeight * zoomFactor);
+        sp_image.setHvalue(0.5);
+        sp_image.setVvalue(0.5);
     }
 }

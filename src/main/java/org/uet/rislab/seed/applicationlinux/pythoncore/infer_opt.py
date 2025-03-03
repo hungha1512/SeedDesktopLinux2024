@@ -119,8 +119,9 @@ def visualize_and_save(image_path, seed_masks, seed_sizes_mm, coin_bbox, output_
             widths.append(None)
             lengths.append(None)
 
-    centroid = np.mean(mask, axis=0).astype(int)
-    cv2.putText(image, text, tuple(centroid), cv2.FONT_HERSHEY_SIMPLEX, 4, (255, 0, 0), 2)
+        centroid = np.mean(mask, axis=0).astype(int)
+        cv2.putText(image, text, tuple(centroid), cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255), 8, cv2.LINE_AA)
+        cv2.putText(image, text, tuple(centroid), cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 0, 0), 5, cv2.LINE_AA)
 
     # Lưu ảnh kết quả và CSV
     image_analysis_dir = os.path.join(output_dir, "Image_analysis")
@@ -132,7 +133,7 @@ def visualize_and_save(image_path, seed_masks, seed_sizes_mm, coin_bbox, output_
 
     cv2.imwrite(annotated_path, image)
     pd.DataFrame({'ID': ids, 'Chiều rộng (mm)': widths, 'Chiều dài (mm)': lengths, 'Tỉ lệ D/R': ratios,
-                  'Loại hạt': seed_types}).to_csv(csv_path, index=False)
+                  'Loại hạt': seed_types}).to_csv(csv_path, index=False, encoding='utf-8-sig')
 
 
 # === Chương trình chính ===
