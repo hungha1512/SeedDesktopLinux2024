@@ -85,7 +85,7 @@ public class MainAnalyzeController implements Initializable {
                 long duration = endTime - startTime;
 
                 System.out.println("Total duration for all tasks: " + duration + "ms");
-                Platform.runLater(() -> showAlert("Info", "Analysis completed. Total duration: " + duration / 1000 + " seconds."));
+                Platform.runLater(() -> showAlert("Info", "Phân tích hoàn thành. Tổng thời gian: " + duration / 1000 + " giây."));
                 return null;
             }
         };
