@@ -52,7 +52,13 @@ Phần mềm thuộc đề tài **CN24.04** của Trường Đại học Công n
    conda env create -f environment.yml
    conda activate ApplicationLinux
    ```
-3. Chạy phần mềm:
+3. Sửa setting.properties:
+- Thay đổi đường dẫn của condaActivatePath. Hiện tại là:
+    ```sh
+    /home/congnghiep/miniconda3/bin/activate
+    ```
+  Sang đường dẫn của miniconda trên máy của bạn.
+4. Chạy phần mềm:
    ```sh
    java --module-path /path/to/javafx-sdk/lib \
         --add-modules javafx.controls,javafx.fxml \
