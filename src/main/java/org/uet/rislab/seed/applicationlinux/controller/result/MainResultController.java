@@ -74,7 +74,7 @@ public class MainResultController implements Initializable {
 
     private double zoomFactor = 0.1;
     private double zoomStep = 0.1;
-    private final double minZoom = 0.2;
+    private final double minZoom = 0.1;
     private final double maxZoom = 1;
     private double dragStartX, dragStartY;
     private double originalWidth, originalHeight;
