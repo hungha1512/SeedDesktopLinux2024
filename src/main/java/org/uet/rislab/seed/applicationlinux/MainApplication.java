@@ -17,6 +17,7 @@ public class MainApplication extends Application {
         stage.setTitle("Phần Mềm Phân Tích Hạt");
         stage.getIcons().add(new Image(Objects.requireNonNull(MainApplication.class.getResourceAsStream("/org/uet/rislab/seed/applicationlinux/media/logo.png"))));
         stage.setScene(scene);
+        stage.setResizable(false);
         stage.show();
     }
 
