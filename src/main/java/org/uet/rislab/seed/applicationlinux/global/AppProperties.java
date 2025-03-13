@@ -9,6 +9,19 @@ public class AppProperties {
     private static String propertiesFilePath;
 
     public static void setPropertiesFilePath(String path) {
+        String currentDir = System.getProperty("user.dir");
+        propertiesFilePath = currentDir + File.separator + path;
+        try (InputStreamReader reader = new InputStreamReader(
+                new FileInputStream(propertiesFilePath), StandardCharsets.UTF_8)) {
+            PROPERTIES.clear(); // Clear any existing properties
+            PROPERTIES.load(reader);
+        } catch (IOException e) {
+            System.err.println("Error loading properties file: " + propertiesFilePath);
+            e.printStackTrace();
+        }
+    }
+
+    public static void setPropertiesProjectPath(String path) {
         propertiesFilePath = path;
         try (InputStreamReader reader = new InputStreamReader(
                 new FileInputStream(propertiesFilePath), StandardCharsets.UTF_8)) {
@@ -21,6 +34,7 @@ public class AppProperties {
     }
 
     public static String getProperty(String key) {
+        System.out.println(PROPERTIES.toString());
         return PROPERTIES.getProperty(key);
     }
 

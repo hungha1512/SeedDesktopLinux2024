@@ -56,8 +56,7 @@ public class MainProjectController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        //TODO: Using entity for session instead of AppProperties
-        AppProperties.setPropertiesFilePath("src/main/resources/application.properties");
+        AppProperties.setPropertiesFilePath("config/application.properties");
         // Input data to project name text field
         txt_project_name.setText(new String(AppProperties.getProperty("projectName").getBytes(), StandardCharsets.UTF_8));
         txt_project_name.setEditable(false);
@@ -117,7 +116,7 @@ public class MainProjectController implements Initializable {
 
         if (selectedFile != null) {
             try {
-                AppProperties.setPropertiesFilePath("src/main/resources/application.properties");
+                AppProperties.setPropertiesFilePath("config/application.properties");
 
                 Properties properties = new Properties();
                 try (InputStreamReader reader = new InputStreamReader(new FileInputStream(selectedFile), StandardCharsets.UTF_8)) {
@@ -216,12 +215,10 @@ public class MainProjectController implements Initializable {
                     alertService.showAlert(Alert.AlertType.ERROR, "Lỗi", "Kích thước vật đối chứng không hợp lệ! Vui lòng nhập số hợp lệ.");
                     return;
                 }
-
                 if (newProjectName.isEmpty() || projectDescription.isEmpty() || newParentPath.isEmpty()) {
                     alertService.showAlert(Alert.AlertType.ERROR, "Lỗi", "Các trường không được để trống!");
                     return;
                 }
-
                 File oldProjectFolder = new File(oldParentPath);
 
                 // Case 1: Change project name only
@@ -251,7 +248,7 @@ public class MainProjectController implements Initializable {
                 }
                 // Case 3: Nothing changes
                 else {
-                    AppProperties.setPropertiesFilePath(newParentPath + "/application.properties");
+                    AppProperties.setPropertiesProjectPath(newParentPath + "/application.properties");
                 }
 
                 // Update properties
@@ -285,7 +282,7 @@ public class MainProjectController implements Initializable {
     }
 
     private void reloadProjectData(String newParentPath) {
-        String globalPropertiesFilePath = "src/main/resources/application.properties";
+        String globalPropertiesFilePath = "config/application.properties";
         String projectName = AppProperties.getProperty("projectName");
         String description = AppProperties.getProperty("description");
         String weight = AppProperties.getProperty("weight");

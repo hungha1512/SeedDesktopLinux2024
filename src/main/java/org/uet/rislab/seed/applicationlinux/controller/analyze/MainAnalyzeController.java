@@ -8,8 +8,10 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ProgressBar;
 import org.uet.rislab.seed.applicationlinux.global.AppProperties;
+import org.uet.rislab.seed.applicationlinux.util.PythonScriptUtil;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -26,17 +28,26 @@ public class MainAnalyzeController implements Initializable {
     public ProgressBar pb_analyze;
 
     private static String IMAGE_FOLDER = AppProperties.getProperty("parentPath") + "/Image";
-    private static final String PYTHON_SCRIPT = "src/main/java/org/uet/rislab/seed/applicationlinux/pythoncore/infer_opt.py";
     private static final String PROJECT_DIR = AppProperties.getProperty("parentPath");
     private static final String GROUND_TRUTH_SIZE = AppProperties.getProperty("groundTruth");
     private static final int THREAD_COUNT = 2; // Number of files to process simultaneously
 
-    Properties properties = new Properties();
-    InputStream inputEnv = getClass().getClassLoader().getResourceAsStream("setting.properties");
+    Properties settings = new Properties();
+//    InputStream inputEnv = getClass().getClassLoader().getResourceAsStream("setting.properties");
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        String settingPath = System.getProperty("user.dir") + File.separator + "config" + File.separator + "setting.properties";
+
+        try (InputStream inputEnv = new FileInputStream(settingPath)) {
+            settings.load(inputEnv);
+        } catch (IOException e) {
+            System.err.println("Lỗi khi tải file setting.properties tại: " + settingPath);
+            e.printStackTrace();
+        }
+
         btn_analyze.setOnAction(event -> handleAnalyze());
+
     }
 
     private void handleAnalyze() {
@@ -98,15 +109,17 @@ public class MainAnalyzeController implements Initializable {
     }
 
     private void runPythonScript(File imageFile) throws IOException, InterruptedException {
-        properties.load(inputEnv);
-        String condaActivatePath = properties.getProperty("condaActivatePath");
-        String pythonExecutable = properties.getProperty("pythonExecutableName");
-        String environmentName = properties.getProperty("condaEnvName");
+
+        String pythonScript = PythonScriptUtil.extractPythonScript();
+
+        String condaActivatePath = settings.getProperty("condaActivatePath");
+        String pythonExecutable = settings.getProperty("pythonExecutableName");
+        String environmentName = settings.getProperty("condaEnvName");
 
         // Construct the command to activate the environment and run the script
         String command = String.format(
                 "bash -c 'source %s %s && %s %s --image-path \"%s\" --project-dir \"%s\" --ground-size %s'",
-                condaActivatePath, environmentName, pythonExecutable, PYTHON_SCRIPT, imageFile.getAbsolutePath(), PROJECT_DIR, GROUND_TRUTH_SIZE
+                condaActivatePath, environmentName, pythonExecutable, pythonScript, imageFile.getAbsolutePath(), PROJECT_DIR, GROUND_TRUTH_SIZE
         );
 
         System.out.println("Executing command: " + command);
