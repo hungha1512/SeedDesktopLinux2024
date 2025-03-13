@@ -64,7 +64,7 @@ public class DashboardController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        AppProperties.setPropertiesFilePath("src/main/resources/application.properties");
+        AppProperties.setPropertiesFilePath("config/application.properties");
         getContentPane("/org/uet/rislab/seed/applicationlinux/view/homepage/home-page.fxml");
 
         btn_project.setOnAction(new EventHandler<ActionEvent>() {

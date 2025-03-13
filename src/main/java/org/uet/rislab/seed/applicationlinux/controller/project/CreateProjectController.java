@@ -200,7 +200,7 @@ public class CreateProjectController implements Initializable {
             propertiesFile.createNewFile();
         }
 
-        AppProperties.setPropertiesFilePath(propertiesFile.getAbsolutePath());
+        AppProperties.setPropertiesProjectPath(propertiesFile.getAbsolutePath());
 
         AppProperties.setProperty("projectName", projectName);
         AppProperties.setProperty("description", description);
@@ -215,7 +215,7 @@ public class CreateProjectController implements Initializable {
 
     private void navigateToProjectPage() {
         try {
-            String globalPropertiesPath = "src/main/resources/application.properties";
+            String globalPropertiesPath = "config/application.properties";
             AppProperties.setPropertiesFilePath(globalPropertiesPath);
             AppProperties.setProperty("isProjectOpened", "true");
             AppProperties.setProperty("parentPath", lbl_parent_path.getText() + "/" + txt_project_name.getText());
