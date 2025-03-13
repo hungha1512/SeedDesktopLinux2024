@@ -99,7 +99,8 @@ public class CaptureCameraService {
                     int id = Integer.parseInt(name.substring(startIndex, endIndex));
                     maxId = Math.max(maxId, id);
                 } catch (NumberFormatException e) {
-                    // Ignore files that don't match the expected format
+                    e.printStackTrace();
+                    System.out.println("Invalid image file name: " + name + ". Skipping...");
                 }
             }
         }
