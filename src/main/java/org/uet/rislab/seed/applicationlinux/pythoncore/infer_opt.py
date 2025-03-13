@@ -132,7 +132,7 @@ def visualize_and_save(image_path, seed_masks, seed_sizes_mm, coin_bbox, output_
     csv_path = os.path.join(result_dir, f"{image_name}_dimensions.csv")
 
     cv2.imwrite(annotated_path, image)
-    pd.DataFrame({'ID': ids, 'Chiều rộng (mm)': widths, 'Chiều dài (mm)': lengths, 'Tỉ lệ D/R': ratios,
+    pd.DataFrame({'ID': ids, 'Chiều dài (mm)': lengths, 'Chiều rộng (mm)': widths, 'Tỉ lệ D/R': ratios,
                   'Loại hạt': seed_types}).to_csv(csv_path, index=False, encoding='utf-8-sig')
 
 
