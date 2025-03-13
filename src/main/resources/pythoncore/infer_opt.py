@@ -19,7 +19,7 @@ if gpus:
     except RuntimeError as e:
         print(f"GPU configuration error: {e}")
 
-MODEL_PATH = "src/main/java/org/uet/rislab/seed/applicationlinux/pythoncore/best.pt"
+MODEL_PATH = os.path.join(os.getcwd(), "models", "best.pt")
 
 
 # === Hàm tính khoảng cách Euclidean ===
