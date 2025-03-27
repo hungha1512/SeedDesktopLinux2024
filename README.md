@@ -5,6 +5,10 @@ Phần mềm Phân tích Hạt được phát triển để hỗ trợ quá trì
 
 Phần mềm thuộc đề tài **CN24.04** của Trường Đại học Công nghệ, Đại học Quốc gia Hà Nội và được phát triển bởi nhóm nghiên cứu Khoa Công nghệ Nông nghiệp.
 
+## Bản cập nhật phát hành
+- 02/03/2025: Ver 1.0.0
+- 27/03/2025: Ver 1.1.0 (Làm cho đường viền mềm mại hơn, cập nhật trọng lượng ngàn hạt)
+
 ## Tính năng chính
 - **Quản lý dự án**: Tạo, mở và chỉnh sửa thông tin dự án.
 - **Chụp mẫu**: Kết nối với máy ảnh và chụp ảnh hạt lúa để phân tích.
